@@ -1,0 +1,129 @@
+.headerRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr)) minmax(240px, 1.5fr);
+  gap: 14px;
+  align-items: stretch;
+  margin-bottom: 6px;
+}
+
+.stat,
+.panel {
+  border: var(--border-width) solid var(--border);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat {
+  padding: 16px;
+}
+
+.stat span {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.stat strong {
+  display: block;
+  margin-top: 12px;
+  font-size: 2.1rem;
+  line-height: 0.95;
+  font-weight: 900;
+}
+
+.revokeAll {
+  align-self: stretch;
+  min-height: 46px;
+  border: var(--border-width) solid var(--border);
+  background: var(--accent);
+  color: white;
+  font: inherit;
+  font-weight: 900;
+  text-transform: uppercase;
+  box-shadow: var(--shadow-sm);
+}
+
+.panel {
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-bottom: var(--border-width) solid var(--border);
+}
+
+.head h3 {
+  margin: 0;
+  font-size: 0.94rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.head span {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.tableHead,
+.row {
+  display: grid;
+  grid-template-columns: 1.15fr 0.7fr 1fr 0.8fr 0.72fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.tableHead {
+  padding: 14px 18px;
+  background: var(--surface-soft);
+  border-bottom: var(--border-width) solid var(--border);
+  font-size: 0.86rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.row {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.row strong {
+  font-size: 0.88rem;
+}
+
+.current,
+.normal {
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.current {
+  color: var(--accent);
+}
+
+.normal {
+  color: var(--text-muted);
+}
+
+.row button {
+  min-height: 36px;
+  border: var(--border-width) solid var(--border);
+  background: white;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1180px) {
+  .headerRow,
+  .tableHead,
+  .row {
+    grid-template-columns: 1fr;
+  }
+}

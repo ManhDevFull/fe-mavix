@@ -1,0 +1,245 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebar {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100vh;
+  overflow-y: auto;
+  border-right: var(--border-width) solid var(--border);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.brandBlock {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: var(--border-width) solid var(--border);
+}
+
+.brandIcon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: white;
+  font-size: 1rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  border-radius: 4px;
+  border: var(--border-width) solid var(--border);
+}
+
+.brandName {
+  min-width: 0;
+}
+
+.brandName h1 {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.1;
+  font-weight: 950;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav {
+  display: grid;
+  align-content: start;
+  gap: 1px;
+  padding: 10px 8px;
+}
+
+.nav a,
+.logout {
+  display: flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 16px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  border: 0;
+  background: transparent;
+}
+
+.navIcon {
+  width: 24px;
+  margin-right: 10px;
+  display: inline-flex;
+  justify-content: center;
+  font-size: 0.92rem;
+}
+
+.active {
+  background: var(--accent) !important;
+  color: white !important;
+}
+
+.sidebarFooter {
+  display: grid;
+  gap: 4px;
+  padding: 10px 14px 0px 14px;
+  border-top: var(--border-width) solid var(--border);
+}
+
+.logout {
+  justify-content: center;
+  min-height: 40px;
+  background: #1f1f1f;
+  color: white;
+}
+
+.copyright {
+  text-align: center;
+  padding: 5px 0;
+}
+
+.copyright span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.content {
+  min-width: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 0 20px 24px;
+}
+
+.loadingState {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.loadingCard {
+  width: min(440px, 100%);
+  padding: 18px;
+  border: var(--border-width) solid var(--border);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: var(--shadow-sm);
+}
+
+.loadingCard strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.96rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.loadingCard p {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 16px 0 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  background: linear-gradient(180deg, rgba(244, 244, 246, 0.98), rgba(244, 244, 246, 0.9));
+  backdrop-filter: blur(8px);
+}
+
+.header h2 {
+  margin: 0;
+  font-size: clamp(1.55rem, 2.1vw, 2.25rem);
+  line-height: 0.95;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  text-transform: uppercase;
+}
+
+.headerRight {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ghostAction,
+.primaryAction,
+.user {
+  min-height: 38px;
+  padding: 0 14px;
+  border: var(--border-width) solid var(--border);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  background: white;
+}
+
+.ghostAction {
+  color: var(--text);
+}
+
+.primaryAction {
+  background: var(--accent);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.user {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+@media (max-width: 1100px) {
+  .page {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+  }
+
+  .sidebar {
+    height: auto;
+    overflow: visible;
+    border-right: 0;
+    border-bottom: var(--border-width) solid var(--border);
+  }
+
+  .content {
+    height: auto;
+    overflow: visible;
+    padding: 0 16px 20px;
+  }
+
+  .header {
+    display: grid;
+  }
+
+  .headerRight {
+    justify-items: start;
+  }
+}

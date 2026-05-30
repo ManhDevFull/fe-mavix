@@ -1,0 +1,360 @@
+.tabs,
+.layout,
+.row2 {
+  display: grid;
+  gap: 16px;
+}
+
+.tabs {
+  grid-template-columns: repeat(6, max-content);
+  border-bottom: var(--border-width) solid var(--border);
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+.tabs button {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.active {
+  box-shadow: inset 0 -4px 0 0 var(--accent);
+  color: var(--accent);
+}
+
+.layout {
+  grid-template-columns: 1.35fr 0.65fr;
+  margin-top: 4px;
+}
+
+.fullWidth {
+  grid-template-columns: 1fr !important;
+}
+
+.mainCol,
+.sideCol {
+  display: grid;
+  gap: 18px;
+}
+
+.panel,
+.brandBox {
+  border: var(--border-width) solid var(--border);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: var(--border-width) solid var(--border);
+}
+
+.panelHead h3,
+.brandBox h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.panelHead span {
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.row2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.panel label {
+  display: grid;
+  gap: 7px;
+}
+
+.panel label span {
+  font-size: 0.84rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.panel input,
+.panel textarea {
+  min-height: 44px;
+  border: var(--border-width) solid var(--border);
+  padding: 0 12px;
+  font: inherit;
+}
+
+.panel textarea {
+  min-height: 88px;
+  padding-top: 10px;
+}
+
+.url {
+  margin: 0;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.staffGrid,
+.securityList {
+  display: grid;
+  gap: 12px;
+}
+
+.staffGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.staffCard,
+.securityRow {
+  border: var(--border-width) solid var(--border);
+  padding: 12px;
+  background: white;
+}
+
+.staffCard strong,
+.securityRow strong {
+  display: block;
+  font-size: 0.84rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.staffCard p,
+.securityRow p {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.logo {
+  width: 130px;
+  height: 130px;
+  margin: 0 auto 14px;
+  display: grid;
+  place-items: center;
+  background: #1dbb87;
+  color: white;
+  font-size: 3rem;
+  font-weight: 900;
+}
+
+.fileButton,
+.ghost,
+.primary {
+  min-height: 44px;
+  border: var(--border-width) solid var(--border);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.fileButton {
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+}
+
+.fileButton input {
+  display: none;
+}
+
+.brandBox p {
+  margin: 10px 0 0;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.palette {
+  display: grid;
+  grid-template-columns: repeat(4, 42px);
+  gap: 10px;
+}
+
+.palette i {
+  display: block;
+  width: 42px;
+  height: 42px;
+  border: var(--border-width) solid var(--border);
+}
+
+.p1 {
+  background: #133c96;
+}
+
+.p2 {
+  background: #5f7785;
+}
+
+.p3 {
+  background: #7f2900;
+}
+
+.p4 {
+  background: #1dbb87;
+}
+
+.planInfo {
+  margin-bottom: 4px;
+}
+
+.featureList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.featureList li {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding-left: 18px;
+  position: relative;
+  line-height: 1.4;
+}
+
+.featureList li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 900;
+}
+
+.activePlan .featureList li::before {
+  color: white;
+}
+
+.footer {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.ghost {
+  min-width: 130px;
+  background: white;
+}
+
+.primary {
+  min-width: 180px;
+  background: var(--accent);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 1180px) {
+
+  .layout,
+  .row2,
+  .tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .staffGrid,
+  .plansGrid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.plansGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.planCard {
+  border: var(--border-width) solid var(--border);
+  padding: 16px;
+  background: white;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.planCard:hover {
+  border-color: var(--accent);
+  box-shadow: 6px 6px 0 0 var(--accent);
+  transform: translate(-3px, -3px);
+}
+
+.activePlan {
+  background: var(--accent) !important;
+  color: white !important;
+}
+
+.activePlan p,
+.activePlan span {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.planCard strong {
+  font-size: 1.1rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  display: block;
+}
+
+.planCard p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 800;
+}
+
+.price {
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+.price b {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 950;
+}
+
+.price span {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.planBtn {
+  margin-top: 10px;
+  width: 100%;
+  height: 38px;
+  border: var(--border-width) solid var(--border);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  background: white;
+}
+
+.planBtn:disabled {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-muted);
+  border-color: transparent;
+}

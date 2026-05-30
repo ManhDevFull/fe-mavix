@@ -1,0 +1,67 @@
+.viewport {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 99999;
+  display: grid;
+  gap: 10px;
+  width: min(360px, calc(100vw - 24px));
+}
+
+.toast {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  padding: 14px 14px 12px;
+  border: var(--border-width) solid var(--border);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: var(--shadow-sm);
+}
+
+.accent {
+  box-shadow:
+    inset 6px 0 0 var(--accent),
+    var(--shadow-sm);
+}
+
+.success {
+  box-shadow:
+    inset 6px 0 0 var(--success),
+    var(--shadow-sm);
+}
+
+.error {
+  box-shadow:
+    inset 6px 0 0 var(--danger),
+    var(--shadow-sm);
+}
+
+.content strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.84rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.content p {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.close {
+  width: 28px;
+  height: 28px;
+  border: var(--border-width) solid var(--border);
+  background: white;
+  font: inherit;
+  font-weight: 900;
+}
+
+@media (max-width: 720px) {
+  .viewport {
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
+}
