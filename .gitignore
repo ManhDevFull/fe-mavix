@@ -29,8 +29,8 @@ dist/
 .env.production.local
 .env.test.local
 
-# Nếu dùng nhiều env riêng
-.env.*
+# !! KHÔNG ignore .env.example - cần cho reference
+# .env.*
 
 # =========================
 # Logs
@@ -91,8 +91,5 @@ desktop.ini
 .yarn-cache/
 .yarnrc.yml
 
-# =========================
-# Misc
-# =========================
 *.bak
 *.orig
