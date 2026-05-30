@@ -70,14 +70,38 @@ export function PublicLayout({ children, noFooter = false }: PublicLayoutProps) 
                                 </div>
                             </div>
                             {[
-                                { title: "Sản phẩm", links: ["Menu QR", "Quản lý đơn hàng", "Báo cáo doanh thu", "Quản lý nhân viên"] },
-                                { title: "Công ty", links: ["Về chúng tôi", "Blog", "Tuyển dụng", "Liên hệ"] },
-                                { title: "Hỗ trợ", links: ["Trung tâm hỗ trợ", "Hướng dẫn bắt đầu", "Điều khoản", "Bảo mật"] },
+                                {
+                                    title: "Sản phẩm",
+                                    links: [
+                                        { label: "Menu QR", href: "/#benefits" },
+                                        { label: "Quản lý đơn hàng", href: "/#benefits" },
+                                        { label: "Báo cáo doanh thu", href: "/#benefits" },
+                                        { label: "Quản lý nhân viên", href: "/#benefits" },
+                                    ],
+                                },
+                                {
+                                    title: "Công ty",
+                                    links: [
+                                        { label: "Về chúng tôi", href: "/about" },
+                                        { label: "Blog", href: "/blog" },
+                                        { label: "Tuyển dụng", href: "/career" },
+                                        { label: "Liên hệ", href: "/contact" },
+                                    ],
+                                },
+                                {
+                                    title: "Hỗ trợ",
+                                    links: [
+                                        { label: "Trung tâm hỗ trợ", href: "/support" },
+                                        { label: "Hướng dẫn bắt đầu", href: "/support/guide" },
+                                        { label: "Điều khoản", href: "/support/terms" },
+                                        { label: "Bảo mật", href: "/support/privacy" },
+                                    ],
+                                },
                             ].map((col, i) => (
                                 <div key={i} className={s.footerCol}>
                                     <span className={s.footerColTitle}>{col.title}</span>
                                     <ul className={s.footerLinks}>
-                                        {col.links.map((l, j) => <li key={j}><a className={s.footerLink} href="#">{l}</a></li>)}
+                                        {col.links.map((l, j) => <li key={j}><Link className={s.footerLink} href={l.href}>{l.label}</Link></li>)}
                                     </ul>
                                 </div>
                             ))}

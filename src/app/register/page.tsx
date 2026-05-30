@@ -7,6 +7,7 @@ import { Check, Loader2, ArrowRight, ArrowLeft, Building2, User, ShieldCheck } f
 import { PublicLayout } from "../../components/public-layout";
 import { useToast } from "../../components/toast-provider";
 import { apiFetch } from "../../lib/api";
+import { safeStorage } from "../../lib/auth";
 import loginStyles from "../login/login.module.css";
 import styles from "./register.module.css";
 
@@ -35,7 +36,7 @@ export default function RegisterPage() {
 
     // Init Data Persistence
     useEffect(() => {
-        const saved = localStorage.getItem("register_temp");
+        const saved = safeStorage.getItem("register_temp");
         if (saved) {
             try {
                 const { step: savedStep, data, timestamp } = JSON.parse(saved);
@@ -44,10 +45,10 @@ export default function RegisterPage() {
                     setFormData(prev => ({ ...prev, ...data }));
                     setStep(savedStep || 1);
                 } else {
-                    localStorage.removeItem("register_temp");
+                    safeStorage.removeItem("register_temp");
                 }
             } catch (e) {
-                localStorage.removeItem("register_temp");
+                safeStorage.removeItem("register_temp");
             }
         }
     }, []);
@@ -55,7 +56,7 @@ export default function RegisterPage() {
     // Persistence Sync
     useEffect(() => {
         if (step < 4) {
-            localStorage.setItem("register_temp", JSON.stringify({
+            safeStorage.setItem("register_temp", JSON.stringify({
                 step,
                 data: { ...formData, otp: ["", "", "", "", "", ""] },
                 timestamp: Date.now()
@@ -124,7 +125,7 @@ export default function RegisterPage() {
                     body: JSON.stringify({ ...formData, otp: formData.otp.join("") }),
                     auth: false
                 });
-                localStorage.removeItem("register_temp");
+                safeStorage.removeItem("register_temp");
                 setStep(4);
                 setTimeout(() => router.replace("/admin"), 3500);
             }
