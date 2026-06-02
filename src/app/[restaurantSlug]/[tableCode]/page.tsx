@@ -97,12 +97,25 @@ export default function PublicMenuPage() {
     setCustomerNote("");
   }
 
+  if (!data) {
+    return <div className={styles.loading}>Đang tải thực đơn...</div>;
+  }
+
+  if (!(data as any).restaurant) {
+    return (
+      <div className={styles.errorPage}>
+        <h1>Không tìm thấy dữ liệu</h1>
+        <p>Bàn hoặc nhà hàng không tồn tại. Vui lòng kiểm tra lại mã QR.</p>
+      </div>
+    );
+  }
+
   return (
     <main className={styles.page}>
       <section className={styles.hero}>
-        <p className={styles.eyebrow}>{data?.restaurant.name ?? "Loading..."}</p>
-        <h1>{data?.table.displayName ?? "Table"}</h1>
-        <p>{data?.restaurant.address}</p>
+        <p className={styles.eyebrow}>{data.restaurant.name}</p>
+        <h1>{data.table.displayName}</h1>
+        <p>{data.restaurant.address}</p>
       </section>
       <section className={styles.layout}>
         <div className={styles.menu}>

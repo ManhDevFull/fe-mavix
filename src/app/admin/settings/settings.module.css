@@ -31,6 +31,7 @@
 .layout {
   grid-template-columns: 1.35fr 0.65fr;
   margin-top: 4px;
+  align-items: flex-start;
 }
 
 .fullWidth {
@@ -514,6 +515,7 @@
   background: #1dbb87;
   color: white;
 }
+
 .securityForm {
   padding-top: 10px;
   display: grid;
@@ -603,4 +605,55 @@
 .pwdInputs {
   display: grid;
   gap: 16px;
+}
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: var(--border-width) solid var(--border);
+  z-index: 100;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.suggestions li {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.suggestions li:hover {
+  background: #f5f5f5;
+  color: var(--accent);
+}
+
+.staffForm {
+  background: #f9f9f9;
+  padding: 16px;
+  border: var(--border-width) dashed var(--border);
+  margin-bottom: 20px;
+}
+
+.deleteBtn {
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  color: #999;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  font-size: 1.2rem;
+  line-height: 1;
+  font-family: serif;
+}
+
+.deleteBtn:hover {
+  background: #dc3545;
+  color: white;
+  border-color: #dc3545;
 }

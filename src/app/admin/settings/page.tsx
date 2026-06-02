@@ -6,6 +6,14 @@ import { useToast } from "../../../components/toast-provider";
 import { useAdmin } from "../../../components/admin-context";
 import styles from "./settings.module.css";
 
+const VIETNAM_BANKS = [
+  "Vietcombank (VCB)", "VietinBank (CTG)", "BIDV", "Agribank", "MBBank (MB)",
+  "Techcombank (TCB)", "ACB", "VPBank", "TPBank", "Sacombank", "VIB",
+  "HDBank", "Eximbank", "MSB", "SHB", "SeABank", "OCB", "PVcomBank",
+  "Nam A Bank", "LPBank", "VietABank", "BaoViet Bank", "Kienlongbank",
+  "PGBank", "SaigonBank", "GPBank", "OceanBank", "DongA Bank"
+];
+
 type Settings = {
   name: string;
   slug: string;
@@ -57,6 +65,20 @@ export default function SettingsPage() {
   const [calc, setCalc] = useState<UpgradeCalc | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "generating" | "pending" | "success">("idle");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+
+  // Staff States
+  const [staff, setStaff] = useState<any[]>([]);
+  const [isAddingStaff, setIsAddingStaff] = useState(false);
+  const [staffForm, setStaffForm] = useState({ fullName: "", email: "", password: "", role: "staff" });
+
+  // Bank Suggestion States
+  const [bankSearch, setBankSearch] = useState("");
+  const [showBankSugg, setShowBankSugg] = useState(false);
+
+  const filteredBanks = useMemo(() => {
+    if (!bankSearch) return [];
+    return VIETNAM_BANKS.filter(b => b.toLowerCase().includes(bankSearch.toLowerCase())).slice(0, 5);
+  }, [bankSearch]);
 
   // Password Change States
   const [isVerifyingPassword, setIsVerifyingPassword] = useState(false);
@@ -129,12 +151,40 @@ export default function SettingsPage() {
     } catch (err) { console.error(err); }
   }
 
+  async function loadStaff() {
+    try {
+      const data = await apiFetch<any[]>("/admin/staff");
+      setStaff(data);
+    } catch (err) { console.error(err); }
+  }
+
   useEffect(() => {
     setTitle("CÀI ĐẶT HỆ THỐNG");
     setDescription("Cấu hình hồ sơ nhà hàng, QR thanh toán và thương hiệu");
     load().catch(e => toast.error("Lỗi tải cài đặt"));
     loadHistory();
+    loadStaff();
   }, [setTitle, setDescription]);
+
+  async function handleAddStaff(e: FormEvent) {
+    e.preventDefault();
+    try {
+      await apiFetch("/admin/staff", { method: "POST", body: JSON.stringify(staffForm) });
+      toast.success("Đã thêm nhân viên mới");
+      setStaffForm({ fullName: "", email: "", password: "", role: "staff" });
+      setIsAddingStaff(false);
+      loadStaff();
+    } catch (err) { toast.error("Lỗi thêm nhân viên"); }
+  }
+
+  async function handleRemoveStaff(id: string) {
+    if (!confirm("Bạn có chắc muốn xóa nhân viên này?")) return;
+    try {
+      await apiFetch(`/admin/staff/${id}`, { method: "DELETE" });
+      toast.success("Đã xóa nhân viên");
+      loadStaff();
+    } catch (err) { toast.error("Lỗi xóa nhân viên"); }
+  }
 
   // Effect to calculate upgrade
   useEffect(() => {
@@ -285,6 +335,83 @@ export default function SettingsPage() {
                   </button>
                 </div>
               )}
+            </article>
+          )}
+
+          {activeTab === "staff" && (
+            <article className={styles.panel}>
+              <div className={styles.panelHead}>
+                <h3>Đội ngũ nhân viên</h3>
+                {!isAddingStaff && <button type="button" className={styles.ghost} onClick={() => setIsAddingStaff(true)}>+ Thêm mới</button>}
+              </div>
+
+              {isAddingStaff && (
+                <div className={styles.staffForm}>
+                  <div className={styles.row2}>
+                    <label className={styles.inputGroup}><span>Họ tên</span><input value={staffForm.fullName} onChange={(e) => setStaffForm({ ...staffForm, fullName: e.target.value })} /></label>
+                    <label className={styles.inputGroup}><span>Email đăng nhập</span><input value={staffForm.email} onChange={(e) => setStaffForm({ ...staffForm, email: e.target.value })} /></label>
+                  </div>
+                  <div className={styles.row2}>
+                    <label className={styles.inputGroup}><span>Mật khẩu tạm</span><input type="password" value={staffForm.password} onChange={(e) => setStaffForm({ ...staffForm, password: e.target.value })} /></label>
+                    <label className={styles.inputGroup}><span>Vai trò</span><select value={staffForm.role} onChange={(e) => setStaffForm({ ...staffForm, role: e.target.value })}><option value="staff">Nhân viên phục vụ</option><option value="manager">Quản lý cửa hàng</option></select></label>
+                  </div>
+                  <div className={styles.row2} style={{ marginTop: '10px' }}>
+                    <button type="button" className={styles.primary} onClick={handleAddStaff}>Xác nhận thêm</button>
+                    <button type="button" className={styles.ghost} onClick={() => setIsAddingStaff(false)}>Hủy</button>
+                  </div>
+                </div>
+              )}
+
+              <div className={styles.staffGrid} style={{ marginTop: '20px' }}>
+                {staff.map((s) => (
+                  <div key={s.id} className={styles.staffCard}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <strong>{s.fullName}</strong>
+                        <p>{s.email} • <span style={{ textTransform: 'uppercase', fontSize: '0.7rem' }}>{s.role}</span></p>
+                      </div>
+                      <button type="button" className={styles.deleteBtn} onClick={() => handleRemoveStaff(s.id)}>×</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </article>
+          )}
+
+          {activeTab === "payment" && (
+            <article className={styles.panel}>
+              <div className={styles.panelHead}><h3>Cấu hình QR nhận tiền</h3><span>Thanh toán</span></div>
+              <div className={styles.row2}>
+                <div className={styles.inputGroup} style={{ position: 'relative' }}>
+                  <span>Tên ngân hàng</span>
+                  <input
+                    value={settings.qrBankName ?? ""}
+                    onChange={(e) => {
+                      setSettings({ ...settings, qrBankName: e.target.value });
+                      setBankSearch(e.target.value);
+                      setShowBankSugg(true);
+                    }}
+                    onFocus={() => setShowBankSugg(true)}
+                    onBlur={() => setTimeout(() => setShowBankSugg(false), 200)}
+                    placeholder="Ví dụ: Vietcombank, MBBank..."
+                  />
+                  {showBankSugg && filteredBanks.length > 0 && (
+                    <ul className={styles.suggestions}>
+                      {filteredBanks.map(b => (
+                        <li key={b} onClick={() => {
+                          setSettings({ ...settings, qrBankName: b });
+                          setShowBankSugg(false);
+                        }}>{b}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <label className={styles.inputGroup}><span>Tiền tố nội dung</span><input value={settings.qrPaymentPrefix ?? ""} onChange={(e) => setSettings({ ...settings, qrPaymentPrefix: e.target.value })} placeholder="Ví dụ: BAN" /></label>
+              </div>
+              <div className={styles.row2}>
+                <label className={styles.inputGroup}><span>Chủ tài khoản</span><input value={settings.qrBankAccountName ?? ""} onChange={(e) => setSettings({ ...settings, qrBankAccountName: e.target.value })} placeholder="Tên in trên thẻ" /></label>
+                <label className={styles.inputGroup}><span>Số tài khoản</span><input value={settings.qrBankAccountNumber ?? ""} onChange={(e) => setSettings({ ...settings, qrBankAccountNumber: e.target.value })} placeholder="Dãy số tài khoản" /></label>
+              </div>
             </article>
           )}
 

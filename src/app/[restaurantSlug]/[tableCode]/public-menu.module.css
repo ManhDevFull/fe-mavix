@@ -115,3 +115,24 @@
     top: 16px;
   }
 }
+
+.loading, .errorPage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px;
+  text-align: center;
+  background: #f8f9fa;
+}
+
+.errorPage h1 {
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+  color: #dc3545;
+}
+
+.errorPage p {
+  color: #6c757d;
+}
