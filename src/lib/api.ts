@@ -28,23 +28,28 @@ async function refreshAuthToken() {
     return null;
   }
 
-  const response = await fetch(`${API_URL}/auth/refresh`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ refreshToken: current.refreshToken }),
-    cache: "no-store"
-  });
+  try {
+    const response = await fetch(`${API_URL}/auth/refresh`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ refreshToken: current.refreshToken }),
+      cache: "no-store"
+    });
 
-  if (!response.ok) {
+    if (!response.ok) {
+      clearAuth();
+      return null;
+    }
+
+    const nextAuth = (await response.json()) as AuthPayload;
+    saveAuth(nextAuth);
+    return nextAuth;
+  } catch (error) {
     clearAuth();
     return null;
   }
-
-  const nextAuth = (await response.json()) as AuthPayload;
-  saveAuth(nextAuth);
-  return nextAuth;
 }
 
 export async function apiFetch<T>(
@@ -85,6 +90,11 @@ export async function apiFetch<T>(
       return apiFetch<T>(path, { ...init, retry: false });
     }
 
+    // Final failure: session is truly dead
+    clearAuth();
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
     throw new ApiError(401, "Phiên đăng nhập đã hết hạn");
   }
 

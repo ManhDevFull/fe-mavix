@@ -84,8 +84,23 @@ export function AdminShell({ children }: AdminShellProps) {
     const updateClock = () => setClock(formatter.format(new Date()));
     updateClock();
     const interval = window.setInterval(updateClock, 1000);
-    return () => window.clearInterval(interval);
-  }, []);
+
+    // Heartbeat check every 60 seconds to ensure session is still valid
+    const heartbeat = window.setInterval(() => {
+      apiFetch("/admin/me")
+        .catch((error) => {
+          if (error instanceof ApiError && error.status === 401) {
+            clearAuth();
+            router.replace("/login");
+          }
+        });
+    }, 60000);
+
+    return () => {
+      window.clearInterval(interval);
+      window.clearInterval(heartbeat);
+    };
+  }, [router]);
 
   async function downloadReport() {
     try {

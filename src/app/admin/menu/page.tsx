@@ -9,7 +9,6 @@ import styles from "./menu.module.css";
 type MenuData = {
   items: Array<{
     id: number;
-    categoryName: string | null;
     name: string;
     description: string | null;
     price: number;
@@ -18,7 +17,6 @@ type MenuData = {
 };
 
 type MenuForm = {
-  categoryName: string;
   name: string;
   description: string;
   price: number;
@@ -26,7 +24,6 @@ type MenuForm = {
 };
 
 const emptyForm: MenuForm = {
-  categoryName: "",
   name: "",
   description: "",
   price: 0,
@@ -39,7 +36,6 @@ export default function MenuPage() {
   const { setTitle, setDescription } = useAdmin();
   const toast = useToast();
   const [data, setData] = useState<MenuData | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string | "all">("all");
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<MenuForm>(emptyForm);
@@ -51,17 +47,11 @@ export default function MenuPage() {
 
   useEffect(() => {
     setTitle("QUẢN LÝ THỰC ĐƠN");
-    setDescription("Danh sách món ăn, danh mục và trạng thái phục vụ");
+    setDescription("Danh sách món ăn và trạng thái phục vụ");
     loadMenu().catch((error) =>
       toast.error("Không tải được thực đơn", error instanceof Error ? error.message : undefined)
     );
   }, [setTitle, setDescription]);
-
-  const categories = useMemo(() => {
-    if (!data) return [];
-    const set = new Set(data.items.map(i => i.categoryName).filter(Boolean));
-    return Array.from(set) as string[];
-  }, [data]);
 
   async function saveItem(event: FormEvent) {
     event.preventDefault();
@@ -92,7 +82,6 @@ export default function MenuPage() {
   function startEdit(item: MenuData["items"][number]) {
     setEditingId(item.id);
     setForm({
-      categoryName: item.categoryName ?? "",
       name: item.name,
       description: item.description ?? "",
       price: item.price,
@@ -122,13 +111,12 @@ export default function MenuPage() {
     }
 
     return data.items.filter((item) => {
-      const categoryMatch = activeCategory === "all" || item.categoryName === activeCategory;
       const searchMatch =
         search.trim() === "" ||
-        `${item.name} ${item.description ?? ""} ${item.categoryName ?? ""}`.toLowerCase().includes(search.toLowerCase());
-      return categoryMatch && searchMatch;
+        `${item.name} ${item.description ?? ""}`.toLowerCase().includes(search.toLowerCase());
+      return searchMatch;
     });
-  }, [activeCategory, data, search]);
+  }, [data, search]);
 
   return (
     <>
@@ -141,39 +129,12 @@ export default function MenuPage() {
         />
       </section>
 
-      <section className={styles.categoryTabs}>
-        <button
-          type="button"
-          className={activeCategory === "all" ? styles.active : ""}
-          onClick={() => setActiveCategory("all")}
-        >
-          Tất cả
-        </button>
-        {categories.map((cat) => (
-          <button
-            type="button"
-            key={cat}
-            className={activeCategory === cat ? styles.active : ""}
-            onClick={() => setActiveCategory(cat)}
-          >
-            {cat}
-          </button>
-        ))}
-      </section>
-
       <section className={styles.layout}>
         <form className={styles.creator} onSubmit={saveItem} ref={formRef}>
           <div className={styles.creatorHead}>
             <h3>{editingId ? "Cập nhật món ăn" : "Tạo món ăn"}</h3>
             {editingId ? <span className={styles.editTag}>Đang sửa</span> : null}
           </div>
-          <input
-            placeholder="Tên danh mục (ví dụ: Khai vị, Đồ uống...)"
-            value={form.categoryName}
-            onChange={(event) =>
-              setForm((current) => ({ ...current, categoryName: event.target.value }))
-            }
-          />
           <input
             placeholder="Tên món"
             value={form.name}
@@ -231,10 +192,7 @@ export default function MenuPage() {
               </div>
               <div className={styles.body}>
                 <div className={styles.topLine}>
-                  <div>
-                    <strong>{item.name}</strong>
-                    <small style={{ display: 'block', color: '#666', fontSize: '11px', textTransform: 'uppercase' }}>{item.categoryName || "Không phân loại"}</small>
-                  </div>
+                  <strong>{item.name}</strong>
                   <b>{item.price.toLocaleString("vi-VN")}đ</b>
                 </div>
                 <p>{item.description ?? "Chưa có mô tả cho món này."}</p>
@@ -254,7 +212,7 @@ export default function MenuPage() {
               </div>
             </article>
           ))}
-          {visibleItems.length === 0 && <p style={{ textAlign: 'center', padding: '40px', color: '#999', width: '100%' }}>Chưa có món ăn nào khớp với tìm kiếm.</p>}
+          {visibleItems.length === 0 && <p style={{ textAlign: 'center', padding: '40px', color: '#999', width: '100%' }}>Chưa có món ăn nào.</p>}
         </div>
       </section>
     </>

@@ -55,15 +55,6 @@ export default function PublicMenuPage() {
       .catch(console.error);
   }, [restaurantSlug, tableCode]);
 
-  const grouped = useMemo(() => {
-    const map = new Map<string, MenuResponse["items"]>();
-    for (const item of data?.items ?? []) {
-      const current = map.get(item.category) ?? [];
-      current.push(item);
-      map.set(item.category, current);
-    }
-    return Array.from(map.entries());
-  }, [data]);
 
   const total = useMemo(
     () =>
@@ -115,45 +106,46 @@ export default function PublicMenuPage() {
       </section>
       <section className={styles.layout}>
         <div className={styles.menu}>
-          {grouped.map(([category, items]) => (
-            <article key={category} className={styles.panel}>
-              <h2>{category}</h2>
-              <div className={styles.items}>
-                {items.map((item) => (
-                  <div key={item.id} className={styles.item}>
-                    <div>
-                      <strong>{item.name}</strong>
-                      <p>{item.description}</p>
-                      <span>{item.price.toLocaleString("vi-VN")} VND</span>
-                    </div>
-                    <div className={styles.counter}>
-                      <button
-                        onClick={() =>
-                          setCart((current) => ({
-                            ...current,
-                            [item.id]: Math.max((current[item.id] ?? 0) - 1, 0)
-                          }))
-                        }
-                      >
-                        -
-                      </button>
-                      <span>{cart[item.id] ?? 0}</span>
-                      <button
-                        onClick={() =>
-                          setCart((current) => ({
-                            ...current,
-                            [item.id]: (current[item.id] ?? 0) + 1
-                          }))
-                        }
-                      >
-                        +
-                      </button>
-                    </div>
+          <article className={styles.panel}>
+            <h2>Thực đơn</h2>
+            <div className={styles.items}>
+              {(data?.items ?? []).map((item) => (
+                <div key={item.id} className={styles.item}>
+                  <div>
+                    <strong>{item.name}</strong>
+                    <p>{item.description}</p>
+                    <span>{item.price.toLocaleString("vi-VN")} VND</span>
                   </div>
-                ))}
-              </div>
-            </article>
-          ))}
+                  <div className={styles.counter}>
+                    <button
+                      onClick={() =>
+                        setCart((current) => ({
+                          ...current,
+                          [item.id]: Math.max((current[item.id] ?? 0) - 1, 0)
+                        }))
+                      }
+                    >
+                      -
+                    </button>
+                    <span>{cart[item.id] ?? 0}</span>
+                    <button
+                      onClick={() =>
+                        setCart((current) => ({
+                          ...current,
+                          [item.id]: (current[item.id] ?? 0) + 1
+                        }))
+                      }
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {(!data?.items || data.items.length === 0) && (
+                <p style={{ textAlign: 'center', padding: '20px', color: '#666' }}>Chưa có món ăn nào.</p>
+              )}
+            </div>
+          </article>
         </div>
         <aside className={styles.sidebar}>
           <div className={styles.panel}>
