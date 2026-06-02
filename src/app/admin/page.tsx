@@ -43,16 +43,14 @@ export default function AdminPage() {
   }, [setTitle, setDescription]);
 
   const revenueBars = useMemo(() => {
-    const bars = new Array(12).fill(0).map((_, i) => ({ label: `${(8 + i * 1).toString().padStart(2, '0')}:00`, value: 0 }));
-    if (!data?.hourlyRevenue) return bars;
+    if (!data?.hourlyRevenue || data.hourlyRevenue.length === 0) {
+      return new Array(12).fill(0).map((_, i) => ({ label: "--", value: 0 }));
+    }
 
-    data.hourlyRevenue.forEach(item => {
-      const index = item.hour - 8;
-      if (index >= 0 && index < 12) {
-        bars[index].value = item.total;
-      }
-    });
-    return bars;
+    return data.hourlyRevenue.map(item => ({
+      label: `${item.hour.toString().padStart(2, '0')}:00`,
+      value: item.total
+    }));
   }, [data]);
 
   const topOrders = (data?.orders ?? []).slice(0, 5);
@@ -114,9 +112,9 @@ export default function AdminPage() {
                 <span>{bar.label}</span>
               </div>
             ))}
-            {data?.hourlyRevenue?.length === 0 && (
-              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', color: '#666' }}>
-                Chưa có dữ liệu hôm nay
+            {(!data?.hourlyRevenue || data.hourlyRevenue.every(b => b.total === 0)) && (
+              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', color: '#666', fontSize: '0.9rem', fontWeight: 700 }}>
+                Chưa có dữ liệu 12h qua
               </div>
             )}
           </div>
