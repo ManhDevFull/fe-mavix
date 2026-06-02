@@ -11,8 +11,8 @@ import styles from "./login.module.css";
 export default function LoginPage() {
   const router = useRouter();
   const toast = useToast();
-  const [email, setEmail] = useState("owner@postcardqr.local");
-  const [password, setPassword] = useState("owner123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -74,7 +74,7 @@ export default function LoginPage() {
             </div>
             <div className={styles.brandBottom}>
               <strong>Truy cập tài khoản quản trị</strong>
-              <p>Dùng tài khoản đã seed trong hệ thống hoặc cấu hình riêng của bạn.</p>
+              <p>Dùng tài khoản vừa đăng ký hoặc tài khoản quản trị bạn tự cấu hình.</p>
             </div>
           </aside>
 
@@ -89,7 +89,7 @@ export default function LoginPage() {
               <label>
                 <span>Email</span>
                 <input
-                  placeholder="owner@postcardqr.local"
+                  placeholder="Nhập email quản trị"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                 />
@@ -98,7 +98,7 @@ export default function LoginPage() {
                 <span>Mật khẩu</span>
                 <input
                   type="password"
-                  placeholder="••••••••"
+                  placeholder="Nhập mật khẩu"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                 />

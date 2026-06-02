@@ -88,13 +88,34 @@ export async function apiFetch<T>(
     throw new ApiError(401, "Phiên đăng nhập đã hết hạn");
   }
 
+  // Check valid JSON response
+  const contentType = response.headers.get("content-type");
+  const isJson = contentType && contentType.includes("application/json");
+
   if (!response.ok) {
     const text = await response.text();
-    throw new ApiError(response.status, text || "Request failed");
+    let message = "Yêu cầu thất bại. Vui lòng thử lại.";
+    if (isJson) {
+      try {
+        const errorData = JSON.parse(text);
+        message = errorData.message || message;
+      } catch (e) { }
+    } else {
+      message = text || message;
+    }
+
+    // Remove "Error: " prefix if it exists
+    message = message.replace(/^Error:\s*/i, "");
+
+    throw new ApiError(response.status, message);
   }
 
   if (response.status === 204) {
     return undefined as T;
+  }
+
+  if (!isJson) {
+    throw new ApiError(response.status, "API returned non-JSON response");
   }
 
   return (await response.json()) as T;

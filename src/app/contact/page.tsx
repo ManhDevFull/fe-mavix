@@ -76,9 +76,15 @@ export default function ContactPage() {
                   </a>
                 </div>
                 <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Email</span>
-                  <a className={styles.infoVal} href="mailto:ntmanh@ntmah.io.vn">
-                    ntmanh@ntmah.io.vn
+                  <span className={styles.infoLabel}>Email Hỗ trợ</span>
+                  <a className={styles.infoVal} href="mailto:mavix@mavix.com">
+                    mavix@mavix.com
+                  </a>
+                </div>
+                <div className={styles.infoItem}>
+                  <span className={styles.infoLabel}>Email Kỹ thuật</span>
+                  <a className={styles.infoVal} href="mailto:ntmanh@ntmanh.io.vn">
+                    ntmanh@ntmanh.io.vn
                   </a>
                 </div>
                 <div className={styles.infoItem}>

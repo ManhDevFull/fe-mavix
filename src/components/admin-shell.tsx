@@ -26,7 +26,7 @@ type AdminShellProps = {
 };
 
 export function AdminShell({ children }: AdminShellProps) {
-  const { title, description, setSlug } = useAdmin();
+  const { title, description, setSlug, setPlan } = useAdmin();
   const pathname = usePathname();
   const router = useRouter();
   const toast = useToast();
@@ -36,6 +36,7 @@ export function AdminShell({ children }: AdminShellProps) {
     role: string;
     restaurantName: string;
     restaurantSlug: string;
+    plan: "free" | "plus" | "pro" | "premium" | "edition";
   } | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
@@ -50,10 +51,12 @@ export function AdminShell({ children }: AdminShellProps) {
       role: string;
       restaurantName: string;
       restaurantSlug: string;
+      plan: "free" | "plus" | "pro" | "premium" | "edition";
     }>("/admin/me")
       .then((data) => {
         setProfile(data);
         setSlug(data.restaurantSlug);
+        setPlan(data.plan || "free");
       })
       .catch((error) => {
         clearAuth();

@@ -24,7 +24,7 @@ export default function SupportPage() {
                 <ul>
                     <li>
                         <strong>Email:</strong>{" "}
-                        <a href="mailto:ntmanh@ntmah.io.vn">ntmanh@ntmah.io.vn</a>
+                        <a href="mailto:ntmanh@ntmanh.io.vn">ntmanh@ntmanh.io.vn</a>
                     </li>
                     <li>
                         <strong>SĐT / Zalo:</strong>{" "}

@@ -15,7 +15,7 @@ type TableRow = {
 };
 
 export default function TablesPage() {
-  const { setTitle, setDescription, slug } = useAdmin();
+  const { setTitle, setDescription, slug, plan } = useAdmin();
   const toast = useToast();
   const [tables, setTables] = useState<TableRow[]>([]);
   const [tableCode, setTableCode] = useState("");
@@ -31,12 +31,20 @@ export default function TablesPage() {
     setTitle("SƠ ĐỒ BÀN");
     setDescription("Quản lý sơ đồ bàn và sức chứa từng khu vực");
     loadTables().catch((error) =>
-      toast.error("Không tải được sơ đồ bàn", error instanceof Error ? error.message : undefined)
+      toast.error("Hệ thống", "Không thể tải danh sách bàn. Vui lòng kiểm tra kết nối.")
     );
   }, [setTitle, setDescription]);
 
   async function createTable(event: FormEvent) {
     event.preventDefault();
+    if (!tableCode.trim()) {
+      toast.error("Thiếu thông tin", "Vui lòng nhập mã bàn (VD: B01)");
+      return;
+    }
+    if (plan === "free" && tables.length >= 5) {
+      toast.error("Vượt quá giới hạn", "Gói Free chỉ hỗ trợ tối đa 5 bàn. Vui lòng nâng cấp lên gói Plus để thêm bàn mới.");
+      return;
+    }
     try {
       await apiFetch("/admin/tables", {
         method: "POST",
@@ -45,10 +53,10 @@ export default function TablesPage() {
       setTableCode("");
       setDisplayName("");
       setSeats(4);
-      toast.success("Đã tạo bàn mới", `${displayName || tableCode} đã được thêm vào sơ đồ bàn.`);
+      toast.success("Thành công", `Đã tạo ${displayName || tableCode} thành công.`);
       await loadTables();
-    } catch (error) {
-      toast.error("Không tạo được bàn", error instanceof Error ? error.message : undefined);
+    } catch (error: any) {
+      toast.error("Lỗi tạo bàn", error.message);
     }
   }
 
@@ -98,16 +106,32 @@ export default function TablesPage() {
             </div>
           </div>
           <div className={styles.grid}>
-            {tables.map((table) => (
-              <article key={table.id} className={styles.tableCard} onClick={() => setSelectedTable(table)}>
-                <div className={styles.tableHead}>
-                  <strong>{table.displayName}</strong>
-                  <span>{table.status === "available" ? "Trống" : "Đang dùng"}</span>
-                </div>
-                <p>Mã: {table.tableCode}</p>
-                <div className={styles.seats}>{table.seats} chỗ ngồi</div>
-              </article>
-            ))}
+            {tables.map((table, index) => {
+              const isLocked = plan === "free" && index >= 5;
+              return (
+                <article
+                  key={table.id}
+                  className={`${styles.tableCard} ${isLocked ? styles.locked : ""}`}
+                  onClick={() => !isLocked && setSelectedTable(table)}
+                >
+                  <div className={styles.tableHead}>
+                    <strong>{table.displayName}</strong>
+                    {!isLocked && (
+                      <span>{table.status === "available" ? "Trống" : "Đang dùng"}</span>
+                    )}
+                  </div>
+                  <p>Mã: {table.tableCode}</p>
+                  <div className={styles.seats}>{table.seats} chỗ ngồi</div>
+
+                  {isLocked && (
+                    <div className={styles.lockOverlay}>
+                      <div className={styles.lockIcon}>🔒</div>
+                      <div className={styles.lockBadge}>GÓI FREE TỐI ĐA 5 BÀN</div>
+                    </div>
+                  )}
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>

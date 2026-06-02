@@ -11,6 +11,7 @@ type MenuResponse = {
     name: string;
     address: string | null;
     phone: string | null;
+    plan: string;
     qrBankName: string | null;
     qrBankAccountName: string | null;
     qrBankAccountNumber: string | null;
@@ -81,7 +82,7 @@ export default function PublicMenuPage() {
         quantity
       }));
 
-      const response = await fetch(
+    const response = await fetch(
       `${API_URL}/public/restaurants/${restaurantSlug}/tables/${tableCode}/orders`,
       {
         method: "POST",
@@ -156,16 +157,18 @@ export default function PublicMenuPage() {
         </div>
         <aside className={styles.sidebar}>
           <div className={styles.panel}>
-            <h2>Order summary</h2>
-            <p>Total</p>
+            <h2>Chi tiết đơn hàng</h2>
+            <p>Tổng cộng</p>
             <strong>{total.toLocaleString("vi-VN")} VND</strong>
             <textarea
-              placeholder="Kitchen note"
+              placeholder="Ghi chú cho bếp"
               value={customerNote}
               onChange={(event) => setCustomerNote(event.target.value)}
             />
-            <button onClick={placeOrder}>Place order</button>
-            {message ? <small>{message}</small> : null}
+            <button onClick={placeOrder} disabled={total === 0}>
+              Đặt món ngay
+            </button>
+            {message ? <small className={styles.orderMessage}>{message}</small> : null}
           </div>
         </aside>
       </section>

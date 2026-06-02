@@ -1,13 +1,11 @@
+import path from "path";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  turbopack: {
+    root: path.resolve(".")
+  }
 };
 
 export default nextConfig;
-

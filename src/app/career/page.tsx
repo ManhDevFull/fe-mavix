@@ -19,7 +19,7 @@ export default function CareerPage() {
                     <p className={styles.comingSoonDesc}>
                         Chúng tôi chưa mở vị trí tuyển dụng chính thức. Nhưng nếu bạn
                         muốn đồng hành cùng Mavix, hãy gửi CV đến{" "}
-                        <a href="mailto:ntmanh@ntmah.io.vn">ntmanh@ntmah.io.vn</a> — chúng
+                        <a href="mailto:ntmanh@ntmanh.io.vn">ntmanh@ntmanh.io.vn</a> — chúng
                         tôi sẽ liên hệ khi có cơ hội phù hợp.
                     </p>
                 </div>

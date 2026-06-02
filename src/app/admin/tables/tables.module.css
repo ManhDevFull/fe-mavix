@@ -224,3 +224,40 @@
   border-color: var(--accent);
   cursor: pointer;
 }
+
+/* Locked state */
+.locked {
+  position: relative;
+  opacity: 0.6;
+  filter: grayscale(0.5);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.lockOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.lockBadge {
+  background: var(--border);
+  color: white;
+  padding: 4px 8px;
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.lockIcon {
+  font-size: 1.2rem;
+}

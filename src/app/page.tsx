@@ -319,15 +319,15 @@ export default function HomePage() {
                   feats: ["Tối đa 5 bàn", "Menu QR cơ bản", "1 Tài khoản quản lý"],
                 },
                 {
-                  name: "Plus", price: "199k", sub: "/th",
+                  name: "Plus", price: "499k", sub: "/th",
                   feats: ["Tối đa 15 bàn", "Quản lý menu chi tiết", "2 Tài khoản nhân viên"],
                 },
                 {
-                  name: "Pro", price: "399k", sub: "/th", pop: true,
+                  name: "Pro", price: "999k", sub: "/th", pop: true,
                   feats: ["Không giới hạn bàn", "Báo cáo chuyên sâu", "Tích hợp IoT Display", "Hỗ trợ 24/7"],
                 },
                 {
-                  name: "Premium", price: "799k", sub: "/th",
+                  name: "Premium", price: "1.999k", sub: "/th",
                   feats: ["Chuỗi nhà hàng", "Quản lý kho nâng cao", "Không giới hạn tài khoản", "Tính năng CRM"],
                 },
                 {

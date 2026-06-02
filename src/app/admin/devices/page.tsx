@@ -24,10 +24,13 @@ type Table = {
 };
 
 export default function DevicesPage() {
-  const { setTitle, setDescription } = useAdmin();
+  const { setTitle, setDescription, plan } = useAdmin();
   const toast = useToast();
   const [devices, setDevices] = useState<Device[]>([]);
   const [tables, setTables] = useState<Table[]>([]);
+
+  const isLocked = !["pro", "premium", "edition"].includes(plan?.toLowerCase() || "");
+
   const [filter, setFilter] = useState<"all" | "online" | "offline">("all");
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
@@ -39,6 +42,7 @@ export default function DevicesPage() {
   });
 
   async function load() {
+    if (isLocked) return;
     const [deviceRows, tableRows] = await Promise.all([
       apiFetch<Device[]>("/admin/devices"),
       apiFetch<Table[]>("/admin/tables")
@@ -53,10 +57,37 @@ export default function DevicesPage() {
   useEffect(() => {
     setTitle("QUẢN LÝ THIẾT BỊ IoT");
     setDescription("Thiết bị ESP32, trạng thái tín hiệu và quản trị firmware");
-    load().catch((error) =>
-      toast.error("Không tải được thiết bị", error instanceof Error ? error.message : undefined)
+    if (!isLocked) {
+      load().catch((error) =>
+        toast.error("Không tải được thiết bị", error instanceof Error ? error.message : undefined)
+      );
+    }
+  }, [setTitle, setDescription, isLocked]);
+
+  if (isLocked) {
+    return (
+      <div className={styles.lockedContainer}>
+        <div className={styles.lockedContent}>
+          <div className={styles.lockIcon}>⚡</div>
+          <h2>TÍNH NĂNG IOT CHUYÊN NGHIỆP</h2>
+          <p>Quản lý thiết bị ESP32, Gateway và Printer chỉ dành cho gói <strong>PRO</strong> trở lên.</p>
+          <ul className={styles.lockFeatures}>
+            <li>✓ Đồng bộ trạng thái Real-time (MQTT)</li>
+            <li>✓ Quản lý pin và tín hiệu thiết bị</li>
+            <li>✓ Cập nhật Firmware OTA từ xa</li>
+            <li>✓ Live System Logs</li>
+          </ul>
+          <button
+            type="button"
+            className={styles.upgradeBtn}
+            onClick={() => window.location.href = "/admin/settings?tab=subscription"}
+          >
+            NÂNG CẤP GÓI NGAY
+          </button>
+        </div>
+      </div>
     );
-  }, [setTitle, setDescription]);
+  }
 
   async function createDevice(event: FormEvent) {
     event.preventDefault();

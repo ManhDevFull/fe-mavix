@@ -73,7 +73,7 @@ export default function TermsPage() {
                 <h2>6. Liên hệ</h2>
                 <p>
                     Mọi thắc mắc về điều khoản, vui lòng liên hệ:{" "}
-                    <a href="mailto:ntmanh@ntmah.io.vn">ntmanh@ntmah.io.vn</a>
+                    <a href="mailto:ntmanh@ntmanh.io.vn">ntmanh@ntmanh.io.vn</a>
                 </p>
             </div>
         </div>

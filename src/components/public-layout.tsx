@@ -58,14 +58,15 @@ export function PublicLayout({ children, noFooter = false }: PublicLayoutProps) 
                         <div className={s.footerTop}>
                             <div className={s.footerBrandCol}>
                                 <div className={s.footerBrand}>
-                                    <span className={s.footerLogoMark}>PCQ</span>
+                                    <span className={s.footerLogoMark}>MX</span>
                                     <span className={s.footerLogoText}>Mavix</span>
                                 </div>
                                 <p className={s.footerDesc}>
                                     Nền tảng quản lý nhà hàng thông minh, giúp bạn vận hành chuyên nghiệp từ ngày đầu tiên.
                                 </p>
                                 <div className={s.footerContactInfo}>
-                                    <a href="mailto:ntmanh@ntmah.io.vn" className={s.footerContactRow}>ntmanh@ntmah.io.vn</a>
+                                    <a href="mailto:mavix@mavix.com" className={s.footerContactRow}>mavix@mavix.com</a>
+                                    <a href="mailto:ntmanh@ntmanh.io.vn" className={s.footerContactRow}>ntmanh@ntmanh.io.vn</a>
                                     <a href="tel:0799021393" className={s.footerContactRow}>0799 021 393</a>
                                 </div>
                             </div>
@@ -110,7 +111,7 @@ export function PublicLayout({ children, noFooter = false }: PublicLayoutProps) 
                             <p className={s.footerCopy}>@Copyright by MADZ Coder & Mavix</p>
                             <div className={s.footerSocials}>
                                 <a className={s.footerSocial} href="https://www.facebook.com/thanh.manh2005" target="_blank" rel="noopener noreferrer">Facebook</a>
-                                <a className={s.footerSocial} href="mailto:ntmanh@ntmah.io.vn">Email</a>
+                                <a className={s.footerSocial} href="mailto:ntmanh@ntmanh.io.vn">Email</a>
                                 <a className={s.footerSocial} href="tel:0799021393">Gọi ngay</a>
                             </div>
                         </div>

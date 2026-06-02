@@ -11,6 +11,8 @@ type Settings = {
   slug: string;
   address: string | null;
   phone: string | null;
+  plan: string;
+  planExpiresAt: string | null;
   qrBankName: string | null;
   qrBankAccountName: string | null;
   qrBankAccountNumber: string | null;
@@ -18,462 +20,250 @@ type Settings = {
   publicMenuUrl: string;
 };
 
+type HistoryEntry = {
+  id: string;
+  planName: string;
+  startDate: string;
+  endDate: string;
+  price: string;
+  status: "completed" | "pending";
+  type: string;
+};
+
+type UpgradeCalc = {
+  currentPlan: string;
+  targetPlan: string;
+  remainingMonths: number;
+  remainingValue: number;
+  totalNewCost: number;
+  amountToPay: number;
+  isUpgrade: boolean;
+  startsAt: string;
+  expiresAt: string;
+};
+
 type TabKey = "general" | "brand" | "staff" | "payment" | "security" | "subscription";
 
 export default function SettingsPage() {
-  const { setTitle, setDescription } = useAdmin();
+  const { setTitle, setDescription, plan: currentPlan, setPlan } = useAdmin();
   const toast = useToast();
   const [settings, setSettings] = useState<Settings | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>("general");
-  const [logoName, setLogoName] = useState("Chưa tải file");
-  const [currentPlan, setCurrentPlan] = useState("Pro");
+
+  // Subscription States
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [duration, setDuration] = useState(1);
+  const [calc, setCalc] = useState<UpgradeCalc | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<"idle" | "generating" | "pending" | "success">("idle");
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
 
   async function load() {
-    setSettings(await apiFetch<Settings>("/admin/settings"));
+    const data = await apiFetch<Settings>("/admin/settings");
+    setSettings(data);
+    if (data.plan) setPlan(data.plan as any);
+  }
+
+  async function loadHistory() {
+    try {
+      const data = await apiFetch<HistoryEntry[]>("/admin/subscriptions/history");
+      setHistory(data);
+    } catch (err) { console.error(err); }
   }
 
   useEffect(() => {
     setTitle("CÀI ĐẶT HỆ THỐNG");
     setDescription("Cấu hình hồ sơ nhà hàng, QR thanh toán và thương hiệu");
-    load().catch((error) =>
-      toast.error("Không tải được cài đặt", error instanceof Error ? error.message : undefined)
-    );
+    load().catch(e => toast.error("Lỗi tải cài đặt"));
+    loadHistory();
   }, [setTitle, setDescription]);
 
+  // Effect to calculate upgrade
+  useEffect(() => {
+    if (isRegistering && selectedPlan) {
+      apiFetch<UpgradeCalc>(`/admin/subscriptions/calculate?plan=${selectedPlan.name}&months=${duration}`)
+        .then(setCalc)
+        .catch(() => toast.error("Lỗi tính toán nâng cấp"));
+    }
+  }, [isRegistering, selectedPlan, duration]);
+
   async function saveWorkspace(event: FormEvent) {
-    event.preventDefault();
-    if (!settings) {
-      return;
-    }
-
+    if (event) event.preventDefault();
+    if (!settings) return;
     try {
-      setSettings(
-        await apiFetch<Settings>("/admin/settings", {
-          method: "PATCH",
-          body: JSON.stringify(settings)
-        })
-      );
-      toast.success("Đã lưu cài đặt", "Thông tin nhà hàng và cấu hình QR đã được cập nhật.");
-    } catch (error) {
-      toast.error("Không lưu được cài đặt", error instanceof Error ? error.message : undefined);
-    }
+      setSettings(await apiFetch<Settings>("/admin/settings", { method: "PATCH", body: JSON.stringify(settings) }));
+      toast.success("Đã lưu cài đặt");
+    } catch (error) { toast.error("Lỗi lưu cài đặt"); }
   }
 
-  const panelTitle = useMemo(() => {
-    switch (activeTab) {
-      case "brand":
-        return "Thương hiệu";
-      case "staff":
-        return "Nhân viên";
-      case "payment":
-        return "Thanh toán QR";
-      case "security":
-        return "Bảo mật";
-      case "subscription":
-        return "Gói quản lý";
-      default:
-        return "Chung";
-    }
-  }, [activeTab]);
+  const handleStartRegistration = (plan: any) => {
+    setSelectedPlan(plan);
+    setDuration(1);
+    setIsRegistering(true);
+  };
 
-  if (!settings) {
-    return null;
-  }
+  const handleConfirmRegister = async () => {
+    if (!calc) return;
+    setPaymentStatus("generating");
+    setTimeout(async () => {
+      setPaymentStatus("pending");
+      setTimeout(async () => {
+        try {
+          const resp = await apiFetch<{ ok: boolean, plan: string }>("/admin/subscriptions/upgrade", {
+            method: 'POST',
+            body: JSON.stringify({
+              planName: selectedPlan.name,
+              durationMonths: duration
+            })
+          });
+          if (resp.ok) {
+            setPaymentStatus("success");
+            setTimeout(() => {
+              setPlan(resp.plan as any);
+              load();
+              loadHistory();
+              setIsRegistering(false);
+              setPaymentStatus("idle");
+              toast.success("Nâng cấp thành công");
+            }, 2000);
+          }
+        } catch (e) { setPaymentStatus("idle"); toast.error("Lỗi thanh toán"); }
+      }, 3000);
+    }, 1000);
+  };
+
+  if (!settings) return null;
 
   const plans = [
-    {
-      name: "Free",
-      price: "0",
-      label: "Dùng QR order cơ bản",
-      desc: "Hệ thống xem QR như một mã tĩnh chuyên nghiệp.",
-      features: [
-        "QR order cho từng bàn",
-        "Gọi món bằng QR",
-        "Đồng bộ đơn hàng cơ bản",
-        "✕ Dashboard thiết bị",
-        "✕ Theo dõi online/offline",
-        "✕ Realtime IoT / Firmware"
-      ]
-    },
-    {
-      name: "Plus",
-      price: "199.000",
-      label: "Bắt đầu quản lý QR IoT",
-      desc: "Khởi động quản lý hệ thống thiết bị phần cứng.",
-      features: [
-        "Tất cả tính năng FREE",
-        "Dashboard quản lý thiết bị",
-        "Xem trạng thái online/offline",
-        "Đồng bộ realtime cơ bản",
-        "Ping thiết bị / Sync bàn",
-        "Báo cáo vận hành cơ sở"
-      ]
-    },
-    {
-      name: "Pro",
-      price: "499.000",
-      label: "Vận hành IoT chuyên nghiệp",
-      desc: "Tối ưu hiệu suất và bảo mật cho thiết bị.",
-      features: [
-        "Tất cả tính năng PLUS",
-        "Heartbeat monitoring",
-        "Sửa lỗi kết nối tự động",
-        "QR Token động (Anti-fake)",
-        "Nhật ký hoạt động thiết bị",
-        "Realtime Dashboard nâng cao"
-      ]
-    },
-    {
-      name: "Premium",
-      price: "999.000",
-      label: "Hệ thống IoT Enterprise",
-      desc: "Giải pháp quản trị từ xa và bảo mật đa tầng.",
-      features: [
-        "Tất cả tính năng PRO",
-        "Cập nhật Firmware từ xa (OTA)",
-        "Remote Reboot / Blacklist",
-        "Device Auth Token bảo mật",
-        "Auto Recovery / Retry queue",
-        "Báo cáo lỗi & Giám sát ưu tiên"
-      ]
-    },
-    {
-      name: "Edition",
-      price: "Custom",
-      label: "Giải pháp May đo",
-      desc: "Hệ thống riêng biệt cho quy mô cực lớn.",
-      features: [
-        "Multi-zone sync chuyên sâu",
-        "SLA cam kết 99.99%",
-        "Hạ tầng Server riêng biệt",
-        "Tích hợp API/Webhook riêng",
-        "Bảo mật đa tầng Enterprise",
-        "Chuyên gia vận hành riêng"
-      ]
-    }
+    { name: "Free", price: "0", label: "Dùng QR order cơ bản", features: ["Tối đa 5 bàn", "Gọi món bằng QR", "Đồng bộ đơn hàng"] },
+    { name: "Plus", price: "499.000", label: "Quản lý QR IoT", features: ["Không giới hạn bàn", "Dashboard thiết bị", "Trạng thái Realtime"] },
+    { name: "Pro", price: "999.000", label: "IoT Chuyên nghiệp", features: ["Heartbeat monitoring", "Dynamic QR", "Device Log"] },
+    { name: "Premium", price: "1.999.000", label: "IoT Enterprise", features: ["Firmware OTA", "Remote Reboot", "Priority Support"] },
+    { name: "Edition", price: "Custom", label: "Dành cho chuỗi", features: ["Server riêng", "SLA 99.99%", "API Integration"] }
   ];
 
   return (
     <>
       <section className={styles.tabs}>
-        {([
-          ["general", "Chung"],
-          ["brand", "Thương hiệu"],
-          ["staff", "Nhân viên"],
-          ["payment", "Thanh toán QR"],
-          ["security", "Bảo mật"],
-          ["subscription", "Gói quản lý"]
-        ] as Array<[TabKey, string]>).map(([key, label]) => (
-          <button
-            key={key}
-            type="button"
-            className={activeTab === key ? styles.active : ""}
-            onClick={() => setActiveTab(key)}
-          >
-            {label}
-          </button>
+        {[["general", "Chung"], ["brand", "Thương hiệu"], ["staff", "Nhân viên"], ["payment", "Thanh toán QR"], ["security", "Bảo mật"], ["subscription", "Gói quản lý"]].map(([key, label]) => (
+          <button key={key} type="button" className={activeTab === key ? styles.active : ""} onClick={() => setActiveTab(key as any)}>{label}</button>
         ))}
       </section>
 
-      <form
-        className={`${styles.layout} ${activeTab === "subscription" ? styles.fullWidth : ""}`}
-        onSubmit={saveWorkspace}
-      >
+      <form className={`${styles.layout} ${activeTab === "subscription" ? styles.fullWidth : ""}`} onSubmit={saveWorkspace}>
         <div className={styles.mainCol}>
-          {activeTab === "general" ? (
-            <>
-              <article className={styles.panel}>
-                <div className={styles.panelHead}>
-                  <h3>Hồ sơ nhà hàng</h3>
-                  <span>{panelTitle}</span>
-                </div>
-                <div className={styles.row2}>
-                  <label>
-                    <span>Tên nhà hàng</span>
-                    <input
-                      value={settings.name}
-                      onChange={(event) =>
-                        setSettings((current) =>
-                          current ? { ...current, name: event.target.value } : current
-                        )
-                      }
-                    />
-                  </label>
-                  <label>
-                    <span>Số điện thoại</span>
-                    <input
-                      value={settings.phone ?? ""}
-                      onChange={(event) =>
-                        setSettings((current) =>
-                          current ? { ...current, phone: event.target.value } : current
-                        )
-                      }
-                    />
-                  </label>
-                </div>
-                <label>
-                  <span>Địa chỉ</span>
-                  <textarea
-                    value={settings.address ?? ""}
-                    onChange={(event) =>
-                      setSettings((current) =>
-                        current ? { ...current, address: event.target.value } : current
-                      )
-                    }
-                  />
-                </label>
-              </article>
-
-              <article className={styles.panel}>
-                <div className={styles.panelHead}>
-                  <h3>Tổng quan công khai</h3>
-                  <span>Menu QR</span>
-                </div>
-                <p className={styles.url}>Slug quán: {settings.slug}</p>
-                <p className={styles.url}>Link menu công khai: {settings.publicMenuUrl}</p>
-              </article>
-            </>
-          ) : null}
-
-          {activeTab === "brand" ? (
+          {activeTab === "general" && (
             <article className={styles.panel}>
-              <div className={styles.panelHead}>
-                <h3>Tùy chỉnh thương hiệu</h3>
-                <span>{panelTitle}</span>
-              </div>
+              <div className={styles.panelHead}><h3>Hồ sơ nhà hàng</h3><span>Chung</span></div>
               <div className={styles.row2}>
-                <label>
-                  <span>Tên hiển thị</span>
-                  <input
-                    value={settings.name}
-                    onChange={(event) =>
-                      setSettings((current) =>
-                        current ? { ...current, name: event.target.value } : current
-                      )
-                    }
-                  />
-                </label>
-                <label>
-                  <span>Slug công khai</span>
-                  <input value={settings.slug} disabled />
-                </label>
+                <label className={styles.inputGroup}><span>Tên nhà hàng</span><input value={settings.name} onChange={(e) => setSettings({ ...settings, name: e.target.value })} /></label>
+                <label className={styles.inputGroup}><span>Số điện thoại</span><input value={settings.phone ?? ""} onChange={(e) => setSettings({ ...settings, phone: e.target.value })} /></label>
               </div>
-              <label>
-                <span>Giới thiệu ngắn</span>
-                <textarea
-                  value={settings.address ?? ""}
-                  onChange={(event) =>
-                    setSettings((current) =>
-                      current ? { ...current, address: event.target.value } : current
-                    )
-                  }
-                />
-              </label>
+              <label className={styles.inputGroup}><span>Địa chỉ</span><textarea value={settings.address ?? ""} onChange={(e) => setSettings({ ...settings, address: e.target.value })} /></label>
             </article>
-          ) : null}
+          )}
 
-          {activeTab === "staff" ? (
+          {activeTab === "brand" && (
             <article className={styles.panel}>
-              <div className={styles.panelHead}>
-                <h3>Nhân sự & phân quyền</h3>
-                <span>{panelTitle}</span>
-              </div>
-              <div className={styles.staffGrid}>
-                <div className={styles.staffCard}>
-                  <strong>Chủ quán</strong>
-                  <p>{settings.name}</p>
-                </div>
-                <div className={styles.staffCard}>
-                  <strong>Quản lý ca</strong>
-                  <p>Chưa cấu hình</p>
-                </div>
-                <div className={styles.staffCard}>
-                  <strong>Thu ngân</strong>
-                  <p>Chưa cấu hình</p>
-                </div>
-                <div className={styles.staffCard}>
-                  <strong>Phục vụ</strong>
-                  <p>Chưa cấu hình</p>
-                </div>
-              </div>
-              <p className={styles.url}>Phần phân quyền chi tiết sẽ nối vào auth role sau.</p>
-            </article>
-          ) : null}
-
-          {activeTab === "payment" ? (
-            <article className={styles.panel}>
-              <div className={styles.panelHead}>
-                <h3>Tùy chỉnh thanh toán QR</h3>
-                <span>Hiển thị công khai</span>
-              </div>
+              <div className={styles.panelHead}><h3>Thương hiệu hiển thị</h3><span>Thương hiệu</span></div>
               <div className={styles.row2}>
-                <label>
-                  <span>Ngân hàng</span>
-                  <input
-                    value={settings.qrBankName ?? ""}
-                    onChange={(event) =>
-                      setSettings((current) =>
-                        current ? { ...current, qrBankName: event.target.value } : current
-                      )
-                    }
-                  />
-                </label>
-                <label>
-                  <span>Tiền tố nội dung</span>
-                  <input
-                    value={settings.qrPaymentPrefix ?? ""}
-                    onChange={(event) =>
-                      setSettings((current) =>
-                        current ? { ...current, qrPaymentPrefix: event.target.value } : current
-                      )
-                    }
-                  />
-                </label>
+                <label className={styles.inputGroup}><span>Tên thương hiệu</span><input value={settings.name} onChange={(e) => setSettings({ ...settings, name: e.target.value })} /></label>
+                <label className={styles.inputGroup}><span>Slug quán</span><input value={settings.slug} disabled /></label>
               </div>
-              <div className={styles.row2}>
-                <label>
-                  <span>Chủ tài khoản</span>
-                  <input
-                    value={settings.qrBankAccountName ?? ""}
-                    onChange={(event) =>
-                      setSettings((current) =>
-                        current ? { ...current, qrBankAccountName: event.target.value } : current
-                      )
-                    }
-                  />
-                </label>
-                <label>
-                  <span>Số tài khoản</span>
-                  <input
-                    value={settings.qrBankAccountNumber ?? ""}
-                    onChange={(event) =>
-                      setSettings((current) =>
-                        current ? { ...current, qrBankAccountNumber: event.target.value } : current
-                      )
-                    }
-                  />
-                </label>
-              </div>
+              <label className={styles.inputGroup}><span>Slogan</span><textarea value={settings.address ?? ""} onChange={(e) => setSettings({ ...settings, address: e.target.value })} /></label>
               <p className={styles.url}>Link menu công khai: {settings.publicMenuUrl}</p>
             </article>
-          ) : null}
+          )}
 
-          {activeTab === "security" ? (
+          {activeTab === "subscription" && (
             <article className={styles.panel}>
               <div className={styles.panelHead}>
-                <h3>Bảo mật & phiên</h3>
-                <span>{panelTitle}</span>
+                <h3>Gói quản lý</h3>
+                <div className={styles.badge} style={{ background: '#000', color: '#fff' }}>ĐANG DÙNG: {currentPlan.toUpperCase()}</div>
               </div>
-              <div className={styles.securityList}>
-                <div className={styles.securityRow}>
-                  <strong>Access token</strong>
-                  <p>Hết hạn sau 10 phút</p>
-                </div>
-                <div className={styles.securityRow}>
-                  <strong>Refresh token</strong>
-                  <p>Hiệu lực 30 ngày, quản lý đa thiết bị</p>
-                </div>
-                <div className={styles.securityRow}>
-                  <strong>Menu URL</strong>
-                  <p>{settings.publicMenuUrl}</p>
-                </div>
-              </div>
-              <p className={styles.url}>Phiên đăng nhập hiện được quản lý trực tiếp tại trang phiên đăng nhập.</p>
-            </article>
-          ) : null}
-
-          {activeTab === "subscription" ? (
-            <article className={styles.panel}>
-              <div className={styles.panelHead}>
-                <h3>Đăng ký gói quản lý</h3>
-                <span>{panelTitle}</span>
-              </div>
-              <div className={styles.plansGrid}>
-                {plans.map((plan) => (
-                  <div
-                    key={plan.name}
-                    className={`${styles.planCard} ${currentPlan === plan.name ? styles.activePlan : ""}`}
-                  >
-                    <div className={styles.planInfo}>
-                      <strong>{plan.name}</strong>
-                      <p>{plan.label}</p>
-                      <span>{plan.desc}</span>
+              {!isRegistering ? (
+                <>
+                  <div className={styles.plansGrid}>{plans.map((p) => (
+                    <div key={p.name} className={`${styles.planCard} ${currentPlan.toLowerCase() === p.name.toLowerCase() ? styles.activePlan : ""}`}>
+                      <div><strong>{p.name}</strong><p>{p.label}</p></div>
+                      <ul className={styles.featureList}>{p.features.map((f, i) => <li key={i}>{f}</li>)}</ul>
+                      <div className={styles.price}><b>{p.price}{p.price !== "Custom" ? "đ" : ""}</b><span>{p.price !== "Custom" ? "/ tháng" : ""}</span></div>
+                      <button type="button" className={styles.planBtn} disabled={currentPlan.toLowerCase() === p.name.toLowerCase()} onClick={() => { if (p.name === "Edition") { window.open("mailto:support@mavix.com"); return; } handleStartRegistration(p); }}>
+                        {p.name === "Edition" ? "Liên hệ" : (currentPlan.toLowerCase() === p.name.toLowerCase() ? "Đang dùng" : "Nâng cấp")}
+                      </button>
                     </div>
-
-                    <ul className={styles.featureList}>
-                      {plan.features.map((feature, i) => (
-                        <li key={i}>{feature}</li>
-                      ))}
-                    </ul>
-
-                    <div className={styles.price}>
-                      <b>{plan.price}{plan.price !== "Custom" ? "đ" : ""}</b>
-                      <span>{plan.price !== "Custom" ? "/ tháng" : "Liên hệ"}</span>
-                    </div>
-                    <button
-                      type="button"
-                      className={styles.planBtn}
-                      disabled={currentPlan === plan.name}
-                      onClick={() => {
-                        if (plan.name === "Edition") {
-                          window.open("mailto:support@postcardqr.vn?subject=Contact for Edition Plan");
-                          return;
-                        }
-                        setCurrentPlan(plan.name);
-                        toast.success(`Đã chọn gói ${plan.name}`, "Hệ thống sẽ cập nhật giới hạn tài khoản của bạn.");
-                      }}
-                    >
-                      {plan.name === "Edition" ? "Liên hệ" : (currentPlan === plan.name ? "Đang sử dụng" : "Nâng cấp")}
-                    </button>
+                  ))}</div>
+                  <div className={styles.historySection}><h3>Lịch sử giao dịch</h3><table className={styles.historyTable}><thead><tr><th>Mã GD</th><th>Gói</th><th>Bắt đầu</th><th>Kết thúc</th><th>Giá trị</th><th>Loại</th></tr></thead><tbody>{history.map((h) => (<tr key={h.id}><td>{h.id}</td><td>{h.planName}</td><td>{h.startDate}</td><td>{h.endDate}</td><td>{h.price}</td><td>{h.type}</td></tr>))}</tbody></table></div>
+                </>
+              ) : (
+                <div className={styles.registrationForm}>
+                  <div className={styles.actionHeader}><button type="button" className={styles.backBtn} onClick={() => setIsRegistering(false)}>← Quay lại</button><h2>NÂNG CẤP LÊN {selectedPlan.name.toUpperCase()}</h2></div>
+                  <div className={styles.row2}>
+                    <label className={styles.inputGroup}><span>Thời hạn</span><select value={duration} onChange={(e) => setDuration(parseInt(e.target.value))} style={{ padding: '10px', border: '2px solid #000' }}><option value={1}>01 Tháng</option><option value={6}>06 Tháng - Giảm 10%</option><option value={12}>12 Tháng - Tặng 2 tháng</option></select></label>
                   </div>
-                ))}
+
+                  {calc && (
+                    <article className={styles.panel} style={{ background: '#f9f9f9', borderStyle: 'dashed', marginTop: '20px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Gói hiện tại:</span><b>{calc.currentPlan.toUpperCase()}</b></div>
+                      {calc.isUpgrade && calc.remainingValue > 0 && (
+                        <>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px' }}><span>Thời gian còn lại:</span><b>~ {calc.remainingMonths} tháng</b></div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px', color: '#1dbb87' }}><span>Giá trị khấu trừ:</span><b>- {calc.remainingValue.toLocaleString()}đ</b></div>
+                        </>
+                      )}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', borderTop: '1px solid #ddd', paddingTop: '10px' }}>
+                        <strong>Chi phí nâng cấp:</strong>
+                        <strong style={{ fontSize: '1.2rem' }}>{calc.amountToPay.toLocaleString()}đ</strong>
+                      </div>
+                      <p style={{ fontSize: '0.75rem', marginTop: '10px', opacity: 0.7 }}>
+                        Hiệu lực: {calc.startsAt} đến {calc.expiresAt}
+                        {!calc.isUpgrade && " (Bắt đầu sau khi gói cũ hết hạn)"}
+                      </p>
+                    </article>
+                  )}
+
+                  <button type="button" className={styles.primary} style={{ height: '56px', marginTop: '20px' }} onClick={handleConfirmRegister} disabled={!calc}>
+                    XÁC NHẬN & THANH TOÁN
+                  </button>
+                </div>
+              )}
+            </article>
+          )}
+
+          {activeTab === "payment" && (
+            <article className={styles.panel}>
+              <div className={styles.panelHead}><h3>Cấu hình QR nhận tiền</h3><span>Thanh toán</span></div>
+              <div className={styles.row2}>
+                <label className={styles.inputGroup}><span>Ngân hàng</span><input value={settings.qrBankName ?? ""} onChange={(e) => setSettings({ ...settings, qrBankName: e.target.value })} /></label>
+                <label className={styles.inputGroup}><span>Tiền tố nội dung</span><input value={settings.qrPaymentPrefix ?? ""} onChange={(e) => setSettings({ ...settings, qrPaymentPrefix: e.target.value })} /></label>
+              </div>
+              <div className={styles.row2}>
+                <label className={styles.inputGroup}><span>Chủ tài khoản</span><input value={settings.qrBankAccountName ?? ""} onChange={(e) => setSettings({ ...settings, qrBankAccountName: e.target.value })} /></label>
+                <label className={styles.inputGroup}><span>Số tài khoản</span><input value={settings.qrBankAccountNumber ?? ""} onChange={(e) => setSettings({ ...settings, qrBankAccountNumber: e.target.value })} /></label>
               </div>
             </article>
-          ) : null}
+          )}
+
+          {activeTab !== "subscription" && (
+            <div className={styles.footer}><button type="button" className={styles.ghost} onClick={load}>Hủy</button><button type="submit" className={styles.primary}>Lưu cấu hình</button></div>
+          )}
         </div>
 
         {activeTab !== "subscription" && (
           <aside className={styles.sideCol}>
-            <article className={styles.brandBox}>
-              <h3>Logo thương hiệu</h3>
-              <div className={styles.logo}>{logoName.slice(0, 1)}</div>
-              <label className={styles.fileButton}>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    setLogoName(file?.name ?? "Chưa tải file");
-                  }}
-                />
-                Tải ảnh lên
-              </label>
-              <p>{logoName}</p>
-            </article>
-
-            <article className={styles.brandBox}>
-              <h3>Màu sắc chủ đạo</h3>
-              <div className={styles.palette}>
-                <i className={styles.p1} />
-                <i className={styles.p2} />
-                <i className={styles.p3} />
-                <i className={styles.p4} />
-              </div>
-            </article>
+            <article className={styles.brandBox}><h3>Logo</h3><div className={styles.logo}>{settings.name.slice(0, 1)}</div><label className={styles.fileButton}><input type="file" hidden />Cập nhật logo</label></article>
           </aside>
         )}
-
-        {activeTab !== "subscription" && (
-          <div className={styles.footer}>
-            <button type="button" className={styles.ghost}>
-              Hủy bỏ
-            </button>
-            <button type="submit" className={styles.primary}>
-              Lưu thay đổi
-            </button>
-          </div>
-        )}
       </form>
+
+      {paymentStatus !== "idle" && (
+        <div className={styles.payModal}>
+          <div className={styles.payCard}>
+            {paymentStatus === "pending" && <div className={styles.successState}><div className={styles.qrContainer}><img src={`https://img.vietqr.io/image/970415-0799021393-compact.png?amount=${calc?.amountToPay}&addInfo=MAVIX_UPGRADE_${selectedPlan.name.toUpperCase()}`} alt="QR" style={{ width: '100%' }} /></div><strong>QUÉT MÃ THANH TOÁN</strong><p>{calc?.amountToPay.toLocaleString()}đ</p></div>}
+            {paymentStatus === "success" && <div className={styles.successState}><div className={styles.checkmark}>✓</div><h1>KÍCH HOẠT THÀNH CÔNG!</h1><p>Gói đã được cập nhật.</p></div>}
+          </div>
+        </div>
+      )}
     </>
   );
 }

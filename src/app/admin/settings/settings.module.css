@@ -244,11 +244,18 @@
 }
 
 .footer {
-  grid-column: 1 / -1;
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  padding-top: 4px;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.footer button {
+  min-width: 160px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .ghost {
@@ -282,6 +289,13 @@
   grid-template-columns: repeat(5, 1fr);
   gap: 12px;
   margin-top: 20px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .planCard {
@@ -357,4 +371,146 @@
   background: rgba(0, 0, 0, 0.05);
   color: var(--text-muted);
   border-color: transparent;
+}
+
+/* Subscription Flow */
+.actionHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  margin-top: 16px;
+}
+
+.backBtn {
+  background: white;
+  border: var(--border-width) solid var(--border);
+  padding: 8px 16px;
+  font-weight: 950;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.registrationForm {
+  display: grid;
+  gap: 20px;
+  max-width: 600px;
+}
+
+.payModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 3000;
+  display: grid;
+  place-items: center;
+}
+
+.payCard {
+  background: white;
+  border: 4px solid var(--border);
+  padding: 40px;
+  width: 400px;
+  text-align: center;
+  box-shadow: 15px 15px 0 var(--accent);
+}
+
+.qrContainer {
+  width: 250px;
+  height: 250px;
+  margin: 20px auto;
+  border: 2px solid var(--border);
+  position: relative;
+}
+
+.skeleton {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+  background-size: 200% 100%;
+  animation: shine 1.5s infinite;
+}
+
+@keyframes shine {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.successState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.checkmark {
+  width: 80px;
+  height: 80px;
+  background: var(--accent);
+  color: white;
+  border-radius: 50%;
+  font-size: 40px;
+  display: grid;
+  place-items: center;
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+.historySection {
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 2px dashed var(--border);
+}
+
+.historyTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.historyTable th {
+  text-align: left;
+  background: var(--border);
+  color: white;
+  padding: 12px;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+}
+
+.historyTable td {
+  padding: 12px;
+  border-bottom: 2px solid var(--border);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.badge {
+  padding: 4px 8px;
+  background: #eee;
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.badgeSuccess {
+  background: #1dbb87;
+  color: white;
 }

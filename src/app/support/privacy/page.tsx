@@ -75,7 +75,7 @@ export default function PrivacyPage() {
                 <h2>6. Liên hệ về quyền riêng tư</h2>
                 <p>
                     Mọi yêu cầu liên quan đến dữ liệu cá nhân, vui lòng liên hệ:{" "}
-                    <a href="mailto:ntmanh@ntmah.io.vn">ntmanh@ntmah.io.vn</a>
+                    <a href="mailto:ntmanh@ntmanh.io.vn">ntmanh@ntmanh.io.vn</a>
                 </p>
                 <p>Chúng tôi cam kết phản hồi trong vòng 5 ngày làm việc.</p>
             </div>

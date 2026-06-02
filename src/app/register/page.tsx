@@ -111,12 +111,22 @@ export default function RegisterPage() {
                 if (formData.password.length < 8) throw new Error("Mật khẩu phải tối thiểu 8 ký tự");
                 setStep(2);
             } else if (step === 2) {
-                await apiFetch("/auth/request-otp", {
+                const result = await apiFetch<{
+                    ok: boolean;
+                    message: string;
+                    deliveryMode?: "smtp" | "console";
+                    debugCode?: string;
+                }>("/auth/request-otp", {
                     method: "POST",
                     body: JSON.stringify({ email: formData.email }),
                     auth: false
                 });
-                toast.success("Đã gửi mã xác thực", "Vui lòng kiểm tra email của bạn.");
+                toast.success(
+                    "Đã gửi mã xác thực",
+                    result.deliveryMode === "console" && result.debugCode
+                        ? `Mã thử nghiệm: ${result.debugCode}`
+                        : "Vui lòng kiểm tra email của bạn."
+                );
                 setStep(3);
                 setResendCooldown(32);
             } else if (step === 3) {
@@ -129,10 +139,13 @@ export default function RegisterPage() {
                 setStep(4);
                 setTimeout(() => router.replace("/admin"), 3500);
             }
-        } catch (err) {
-            const msg = err instanceof Error ? err.message : "Thao tác thất bại";
-            setError(msg);
-            toast.error("Lỗi", msg);
+        } catch (err: any) {
+            let msg = err.message || "Thao tác thất bại";
+            // Filter technical NestJS errors
+            if (msg.includes("Cannot POST")) {
+                msg = "Hệ thống đang bảo trì tính năng này. Vui lòng thử lại sau.";
+            }
+            toast.error("Thông báo", msg);
         } finally {
             setLoading(false);
         }
@@ -142,12 +155,20 @@ export default function RegisterPage() {
         if (resendCooldown > 0 || loading) return;
         setLoading(true);
         try {
-            await apiFetch("/auth/request-otp", {
+            const result = await apiFetch<{
+                ok: boolean;
+                message: string;
+                deliveryMode?: "smtp" | "console";
+                debugCode?: string;
+            }>("/auth/request-otp", {
                 method: "POST",
                 body: JSON.stringify({ email: formData.email }),
                 auth: false
             });
-            toast.success("Đã gửi lại mã");
+            toast.success(
+                "Đã gửi lại mã",
+                result.deliveryMode === "console" && result.debugCode ? `Mã thử nghiệm: ${result.debugCode}` : undefined
+            );
             setResendCooldown(60);
         } catch (e) {
             toast.error("Không thể gửi lại mã");
@@ -241,7 +262,7 @@ export default function RegisterPage() {
                                                 <input type="password" required placeholder="Tối thiểu 8 ký tự" value={formData.password} onChange={e => updateField("password", e.target.value)} />
                                                 {formData.password && formData.password.length < 8 && <p style={{ color: "var(--danger)", fontSize: "0.7rem", margin: 0, fontWeight: 800 }}>Mật khẩu quá ngắn</p>}
                                             </label>
-                                            {error && <p className={loginStyles.error}>{error}</p>}
+
                                             <button type="submit" disabled={loading} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
                                                 {loading ? <Loader2 className="animate-spin" size={20} /> : <>Tiếp tục <ArrowRight size={18} /></>}
                                             </button>
@@ -288,7 +309,7 @@ export default function RegisterPage() {
                                                     <option value="restaurant">Nhà hàng / Quán ăn</option>
                                                 </select>
                                             </label>
-                                            {error && <p className={loginStyles.error}>{error}</p>}
+
                                             <button type="submit" disabled={loading}>{loading ? "Đang xử lý..." : "Gửi mã OTP"}</button>
                                             <button type="button" onClick={() => setStep(1)} style={{ background: "transparent", border: "0", marginTop: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontWeight: 900, textTransform: "uppercase", fontSize: "0.8rem", color: "var(--text-muted)", cursor: "pointer" }}>
                                                 <ArrowLeft size={16} /> Quay lại Bước 1
@@ -321,7 +342,7 @@ export default function RegisterPage() {
                                                 <span style={{ fontSize: "0.84rem", color: "var(--text-muted)", fontWeight: 800 }}>{resendCooldown > 0 ? `Gửi lại sau ${resendCooldown}s` : "Chưa có mã?"}</span>
                                                 <button type="button" className={styles.resendBtn} disabled={resendCooldown > 0 || loading} onClick={handleResend}>Gửi lại mã</button>
                                             </div>
-                                            {error && <p className={loginStyles.error} style={{ marginTop: 16 }}>{error}</p>}
+
                                             <button type="submit" disabled={loading || formData.otp.some(v => !v)} style={{ marginTop: 20 }}>{loading ? "Đang xác thực..." : "Xác nhận & Hoàn tất"}</button>
                                         </div>
                                     </motion.form>
