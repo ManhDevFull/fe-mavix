@@ -31,39 +31,7 @@ export default function HistoryPage() {
     async function loadHistory() {
         setLoading(true);
         try {
-            // Assuming a backend endpoint exists, otherwise use mockup data
-            const data = await apiFetch<HistoryItem[]>("/admin/history").catch(() => {
-                // Mockup data for demonstration
-                return [
-                    {
-                        id: 1,
-                        tableCode: "B05",
-                        checkInTime: "2024-05-25T10:30:00Z",
-                        paymentTime: "2024-05-25T11:45:00Z",
-                        amount: 450000,
-                        transactionId: "TX123456789",
-                        paymentMethod: "Bank Transfer",
-                        items: [
-                            { name: "Phở Đặc Biệt", quantity: 2, price: 150000 },
-                            { name: "Cà Phê Sữa Đá", quantity: 2, price: 45000 },
-                            { name: "Nem Rán", quantity: 1, price: 60000 }
-                        ]
-                    },
-                    {
-                        id: 2,
-                        tableCode: "A12",
-                        checkInTime: "2024-05-25T09:15:00Z",
-                        paymentTime: "2024-05-25T10:10:00Z",
-                        amount: 125000,
-                        transactionId: "TX987654321",
-                        paymentMethod: "QR Pay",
-                        items: [
-                            { name: "Bánh Mì Thịt Nướng", quantity: 2, price: 45000 },
-                            { name: "Trà Đào", quantity: 1, price: 35000 }
-                        ]
-                    }
-                ];
-            });
+            const data = await apiFetch<HistoryItem[]>("/admin/order-history");
             setHistory(data);
         } catch (error) {
             toast.error("Không tải được lịch sử", error instanceof Error ? error.message : undefined);

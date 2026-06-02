@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AdminShell } from "../../components/admin-shell";
 import { apiFetch } from "../../lib/api";
 import { useToast } from "../../components/toast-provider";
@@ -13,7 +13,7 @@ type DashboardData = {
     todayRevenue: number;
     pendingOrders: number;
   };
-  revenueChart: { label: string; value: number }[];
+  hourlyRevenue: { hour: number; total: number }[];
   orders: {
     orderId: number;
     displayName: string;
@@ -42,6 +42,19 @@ export default function AdminPage() {
     return () => clearInterval(interval);
   }, [setTitle, setDescription]);
 
+  const revenueBars = useMemo(() => {
+    const bars = new Array(12).fill(0).map((_, i) => ({ label: `${(8 + i * 1).toString().padStart(2, '0')}:00`, value: 0 }));
+    if (!data?.hourlyRevenue) return bars;
+
+    data.hourlyRevenue.forEach(item => {
+      const index = item.hour - 8;
+      if (index >= 0 && index < 12) {
+        bars[index].value = item.total;
+      }
+    });
+    return bars;
+  }, [data]);
+
   const topOrders = (data?.orders ?? []).slice(0, 5);
 
   return (
@@ -50,7 +63,6 @@ export default function AdminPage() {
         <div className={styles.card}>
           <div className={styles.cardTop}>
             <span>Doanh thu hôm nay</span>
-            <span className={styles.gain}>+12.5%</span>
           </div>
           <strong>{(data?.stats.todayRevenue ?? 0).toLocaleString("vi-VN")}đ</strong>
         </div>
@@ -96,12 +108,17 @@ export default function AdminPage() {
             </span>
           </div>
           <div className={styles.chart}>
-            {[4, 6, 8, 12, 9, 14, 8, 6, 4, 3, 2].map((val, i) => (
+            {revenueBars.map((bar, i) => (
               <div key={i} className={styles.barWrap}>
-                <div className={styles.bar} style={{ height: `${val * 15}px` }} />
-                <span>{`${(8 + i * 2).toString().padStart(2, '0')}:00`}</span>
+                <div className={styles.bar} style={{ height: `${Math.min(150, (bar.value / 100000) * 15)}px` }} />
+                <span>{bar.label}</span>
               </div>
             ))}
+            {data?.hourlyRevenue?.length === 0 && (
+              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', color: '#666' }}>
+                Chưa có dữ liệu hôm nay
+              </div>
+            )}
           </div>
         </div>
         <div className={styles.panel}>

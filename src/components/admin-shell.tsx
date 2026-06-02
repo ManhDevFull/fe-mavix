@@ -150,9 +150,14 @@ export function AdminShell({ children }: AdminShellProps) {
           <button
             type="button"
             className={styles.logout}
-            onClick={() => {
+            onClick={async () => {
+              try {
+                await apiFetch("/admin/sessions/logout", { method: "POST" });
+              } catch {
+                // Ignore errors during logout
+              }
               clearAuth();
-              toast.info("Đã đăng xuất", "Phiên quản trị đã được xóa khỏi trình duyệt.");
+              toast.info("Đã đăng xuất", "Phiên quản trị đã được thu hồi và xóa khỏi trình duyệt.");
               router.replace("/login");
             }}
           >

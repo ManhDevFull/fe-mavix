@@ -7,10 +7,9 @@ import { useToast } from "../../../components/toast-provider";
 import styles from "./menu.module.css";
 
 type MenuData = {
-  categories: Array<{ id: number; name: string }>;
   items: Array<{
     id: number;
-    categoryId: number;
+    categoryName: string | null;
     name: string;
     description: string | null;
     price: number;
@@ -19,7 +18,7 @@ type MenuData = {
 };
 
 type MenuForm = {
-  categoryId: number;
+  categoryName: string;
   name: string;
   description: string;
   price: number;
@@ -27,7 +26,7 @@ type MenuForm = {
 };
 
 const emptyForm: MenuForm = {
-  categoryId: 1,
+  categoryName: "",
   name: "",
   description: "",
   price: 0,
@@ -40,7 +39,7 @@ export default function MenuPage() {
   const { setTitle, setDescription } = useAdmin();
   const toast = useToast();
   const [data, setData] = useState<MenuData | null>(null);
-  const [activeCategory, setActiveCategory] = useState<number | "all">("all");
+  const [activeCategory, setActiveCategory] = useState<string | "all">("all");
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<MenuForm>(emptyForm);
@@ -58,14 +57,11 @@ export default function MenuPage() {
     );
   }, [setTitle, setDescription]);
 
-  useEffect(() => {
-    if (data?.categories?.length && form.categoryId === 1) {
-      setForm((current) => ({
-        ...current,
-        categoryId: data.categories[0].id
-      }));
-    }
-  }, [data, form.categoryId]);
+  const categories = useMemo(() => {
+    if (!data) return [];
+    const set = new Set(data.items.map(i => i.categoryName).filter(Boolean));
+    return Array.from(set) as string[];
+  }, [data]);
 
   async function saveItem(event: FormEvent) {
     event.preventDefault();
@@ -86,13 +82,7 @@ export default function MenuPage() {
       }
 
       setEditingId(null);
-      setForm({
-        categoryId: data?.categories[0]?.id ?? 1,
-        name: "",
-        description: "",
-        price: 0,
-        isAvailable: true
-      });
+      setForm(emptyForm);
       await loadMenu();
     } catch (error) {
       toast.error("Không lưu được món", error instanceof Error ? error.message : undefined);
@@ -102,7 +92,7 @@ export default function MenuPage() {
   function startEdit(item: MenuData["items"][number]) {
     setEditingId(item.id);
     setForm({
-      categoryId: item.categoryId,
+      categoryName: item.categoryName ?? "",
       name: item.name,
       description: item.description ?? "",
       price: item.price,
@@ -132,10 +122,10 @@ export default function MenuPage() {
     }
 
     return data.items.filter((item) => {
-      const categoryMatch = activeCategory === "all" || item.categoryId === activeCategory;
+      const categoryMatch = activeCategory === "all" || item.categoryName === activeCategory;
       const searchMatch =
         search.trim() === "" ||
-        `${item.name} ${item.description ?? ""}`.toLowerCase().includes(search.toLowerCase());
+        `${item.name} ${item.description ?? ""} ${item.categoryName ?? ""}`.toLowerCase().includes(search.toLowerCase());
       return categoryMatch && searchMatch;
     });
   }, [activeCategory, data, search]);
@@ -159,14 +149,14 @@ export default function MenuPage() {
         >
           Tất cả
         </button>
-        {(data?.categories ?? []).map((category) => (
+        {categories.map((cat) => (
           <button
             type="button"
-            key={category.id}
-            className={activeCategory === category.id ? styles.active : ""}
-            onClick={() => setActiveCategory(category.id)}
+            key={cat}
+            className={activeCategory === cat ? styles.active : ""}
+            onClick={() => setActiveCategory(cat)}
           >
-            {category.name}
+            {cat}
           </button>
         ))}
       </section>
@@ -177,21 +167,13 @@ export default function MenuPage() {
             <h3>{editingId ? "Cập nhật món ăn" : "Tạo món ăn"}</h3>
             {editingId ? <span className={styles.editTag}>Đang sửa</span> : null}
           </div>
-          <select
-            value={form.categoryId}
+          <input
+            placeholder="Tên danh mục (ví dụ: Khai vị, Đồ uống...)"
+            value={form.categoryName}
             onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                categoryId: Number(event.target.value)
-              }))
+              setForm((current) => ({ ...current, categoryName: event.target.value }))
             }
-          >
-            {(data?.categories ?? []).map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
+          />
           <input
             placeholder="Tên món"
             value={form.name}
@@ -232,13 +214,7 @@ export default function MenuPage() {
                 className={styles.secondary}
                 onClick={() => {
                   setEditingId(null);
-                  setForm({
-                    categoryId: data?.categories[0]?.id ?? 1,
-                    name: "",
-                    description: "",
-                    price: 0,
-                    isAvailable: true
-                  });
+                  setForm(emptyForm);
                 }}
               >
                 Hủy sửa
@@ -255,7 +231,10 @@ export default function MenuPage() {
               </div>
               <div className={styles.body}>
                 <div className={styles.topLine}>
-                  <strong>{item.name}</strong>
+                  <div>
+                    <strong>{item.name}</strong>
+                    <small style={{ display: 'block', color: '#666', fontSize: '11px', textTransform: 'uppercase' }}>{item.categoryName || "Không phân loại"}</small>
+                  </div>
                   <b>{item.price.toLocaleString("vi-VN")}đ</b>
                 </div>
                 <p>{item.description ?? "Chưa có mô tả cho món này."}</p>
@@ -275,6 +254,7 @@ export default function MenuPage() {
               </div>
             </article>
           ))}
+          {visibleItems.length === 0 && <p style={{ textAlign: 'center', padding: '40px', color: '#999', width: '100%' }}>Chưa có món ăn nào khớp với tìm kiếm.</p>}
         </div>
       </section>
     </>
