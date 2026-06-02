@@ -5,6 +5,7 @@ import { AdminShell } from "../../components/admin-shell";
 import { apiFetch } from "../../lib/api";
 import { useToast } from "../../components/toast-provider";
 import styles from "./admin.module.css";
+import { useAdmin } from "../../components/admin-context";
 
 type DashboardData = {
   stats: {
@@ -21,26 +22,36 @@ type DashboardData = {
   }[];
 };
 
-import { useAdmin } from "../../components/admin-context";
-
 export default function AdminPage() {
-  const { setTitle, setDescription } = useAdmin();
+  const { setTitle, setDescription, socket } = useAdmin();
   const toast = useToast();
   const [data, setData] = useState<DashboardData | null>(null);
+
+  const loadData = (silent = false) => {
+    apiFetch<DashboardData>("/admin/overview").then(setData).catch((error) => {
+      if (!silent) toast.error("Không tải được tổng quan", error instanceof Error ? error.message : undefined);
+    });
+  };
 
   useEffect(() => {
     setTitle("HỆ THỐNG TỔNG QUAN");
     setDescription("Bảng điều khiển vận hành thời gian thực cho nhà hàng");
 
-    apiFetch<DashboardData>("/admin/overview").then(setData).catch((error) => {
-      toast.error("Không tải được tổng quan", error instanceof Error ? error.message : undefined);
-    });
+    loadData();
 
-    const interval = setInterval(() => {
-      apiFetch<DashboardData>("/admin/overview").then(setData).catch(() => undefined);
-    }, 10000);
+    if (socket) {
+      const handleUpdate = () => loadData(true);
+      socket.on("new_order", handleUpdate);
+      socket.on("order_updated", handleUpdate);
+      return () => {
+        socket.off("new_order", handleUpdate);
+        socket.off("order_updated", handleUpdate);
+      };
+    }
+
+    const interval = setInterval(() => loadData(true), 30000);
     return () => clearInterval(interval);
-  }, [setTitle, setDescription]);
+  }, [setTitle, setDescription, socket]);
 
   const revenueBars = useMemo(() => {
     if (!data?.hourlyRevenue || data.hourlyRevenue.length === 0) {

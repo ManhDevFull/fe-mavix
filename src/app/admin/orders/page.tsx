@@ -25,14 +25,14 @@ type OrderBoard = Array<{
 import { useAdmin } from "../../../components/admin-context";
 
 export default function OrdersPage() {
-  const { setTitle, setDescription } = useAdmin();
+  const { setTitle, setDescription, socket } = useAdmin();
   const toast = useToast();
   const [orders, setOrders] = useState<OrderBoard>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  async function loadOrders() {
-    setLoading(true);
+  const loadOrders = async (silent = false) => {
+    if (!silent) setLoading(true);
     setError("");
 
     try {
@@ -40,15 +40,26 @@ export default function OrdersPage() {
     } catch {
       setError("Không tải được danh sách đơn hàng. Kiểm tra lại phiên đăng nhập hoặc backend.");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     setTitle("ĐƠN HÀNG ĐANG PHỤC VỤ");
     setDescription("Theo dõi món mới theo từng bàn, từng món, từng trạng thái phục vụ");
     void loadOrders();
-  }, [setTitle, setDescription]);
+
+    if (socket) {
+      const handleUpdate = () => void loadOrders(true);
+      socket.on("new_order", handleUpdate);
+      socket.on("order_updated", handleUpdate);
+
+      return () => {
+        socket.off("new_order", handleUpdate);
+        socket.off("order_updated", handleUpdate);
+      };
+    }
+  }, [setTitle, setDescription, socket]);
 
   async function markServed(orderId: number, itemId: number) {
     try {

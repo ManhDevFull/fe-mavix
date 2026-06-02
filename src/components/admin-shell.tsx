@@ -26,7 +26,7 @@ type AdminShellProps = {
 };
 
 export function AdminShell({ children }: AdminShellProps) {
-  const { title, description, setSlug, setPlan } = useAdmin();
+  const { title, description, setSlug, setPlan, setRestaurantId } = useAdmin();
   const pathname = usePathname();
   const router = useRouter();
   const toast = useToast();
@@ -34,6 +34,7 @@ export function AdminShell({ children }: AdminShellProps) {
   const [profile, setProfile] = useState<{
     fullName: string;
     role: string;
+    restaurantId: number;
     restaurantName: string;
     restaurantSlug: string;
     plan: "free" | "plus" | "pro" | "premium" | "edition";
@@ -49,6 +50,7 @@ export function AdminShell({ children }: AdminShellProps) {
     apiFetch<{
       fullName: string;
       role: string;
+      restaurantId: number;
       restaurantName: string;
       restaurantSlug: string;
       plan: "free" | "plus" | "pro" | "premium" | "edition";
@@ -57,6 +59,7 @@ export function AdminShell({ children }: AdminShellProps) {
         setProfile(data);
         setSlug(data.restaurantSlug);
         setPlan(data.plan || "free");
+        setRestaurantId(data.restaurantId);
       })
       .catch((error) => {
         clearAuth();
