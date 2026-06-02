@@ -25,7 +25,6 @@ type Settings = {
   qrBankAccountName: string | null;
   qrBankAccountNumber: string | null;
   qrPaymentPrefix: string | null;
-  publicMenuUrl: string;
 };
 
 type HistoryEntry = {
@@ -279,7 +278,6 @@ export default function SettingsPage() {
                 <label className={styles.inputGroup}><span>Slug quán</span><input value={settings.slug} disabled /></label>
               </div>
               <label className={styles.inputGroup}><span>Slogan</span><textarea value={settings.address ?? ""} onChange={(e) => setSettings({ ...settings, address: e.target.value })} /></label>
-              <p className={styles.url}>Link menu công khai: {settings.publicMenuUrl}</p>
             </article>
           )}
 
