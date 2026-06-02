@@ -85,7 +85,7 @@ export default function MenuPage() {
       name: item.name,
       description: item.description ?? "",
       price: item.price,
-      isAvailable: item.isAvailable
+      isAvailable: !!item.isAvailable
     });
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
