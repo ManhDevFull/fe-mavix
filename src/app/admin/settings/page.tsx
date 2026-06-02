@@ -58,6 +58,64 @@ export default function SettingsPage() {
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "generating" | "pending" | "success">("idle");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
 
+  // Password Change States
+  const [isVerifyingPassword, setIsVerifyingPassword] = useState(false);
+  const [pwdForm, setPwdForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+    otp: ""
+  });
+
+  async function handleRequestPasswordChange() {
+    if (!pwdForm.currentPassword || !pwdForm.newPassword || !pwdForm.confirmPassword) {
+      return toast.error("Vui lòng nhập đầy đủ thông tin");
+    }
+    if (pwdForm.newPassword !== pwdForm.confirmPassword) {
+      return toast.error("Mật khẩu mới không khớp");
+    }
+    if (pwdForm.newPassword.length < 6) {
+      return toast.error("Mật khẩu mới phải có ít nhất 6 ký tự");
+    }
+
+    try {
+      await apiFetch("/admin/change-password/request", {
+        method: "POST",
+        body: JSON.stringify({
+          currentPassword: pwdForm.currentPassword,
+          newPassword: pwdForm.newPassword
+        })
+      });
+      toast.success("Mã OTP đã được gửi", "Vui lòng kiểm tra email của bạn.");
+      setIsVerifyingPassword(true);
+    } catch (error) {
+      toast.error("Lỗi gửi mã OTP", error instanceof Error ? error.message : undefined);
+    }
+  }
+
+  async function handleVerifyPasswordChange() {
+    if (!pwdForm.otp) return toast.error("Vui lòng nhập mã OTP");
+
+    try {
+      await apiFetch("/admin/change-password/verify", {
+        method: "POST",
+        body: JSON.stringify({
+          otp: pwdForm.otp,
+          currentPassword: pwdForm.currentPassword,
+          newPassword: pwdForm.newPassword
+        })
+      });
+      toast.success("Đổi mật khẩu thành công", "Vui lòng đăng nhập lại để tiếp tục.");
+      // Optional: Log out user
+      setTimeout(() => {
+        const logoutBtn = document.querySelector('button[class*="logout"]') as HTMLButtonElement;
+        if (logoutBtn) logoutBtn.click();
+      }, 2000);
+    } catch (error) {
+      toast.error("Lỗi xác thực", error instanceof Error ? error.message : undefined);
+    }
+  }
+
   async function load() {
     const data = await apiFetch<Settings>("/admin/settings");
     setSettings(data);
@@ -230,21 +288,108 @@ export default function SettingsPage() {
             </article>
           )}
 
-          {activeTab === "payment" && (
+          {activeTab === "security" && (
             <article className={styles.panel}>
-              <div className={styles.panelHead}><h3>Cấu hình QR nhận tiền</h3><span>Thanh toán</span></div>
-              <div className={styles.row2}>
-                <label className={styles.inputGroup}><span>Ngân hàng</span><input value={settings.qrBankName ?? ""} onChange={(e) => setSettings({ ...settings, qrBankName: e.target.value })} /></label>
-                <label className={styles.inputGroup}><span>Tiền tố nội dung</span><input value={settings.qrPaymentPrefix ?? ""} onChange={(e) => setSettings({ ...settings, qrPaymentPrefix: e.target.value })} /></label>
-              </div>
-              <div className={styles.row2}>
-                <label className={styles.inputGroup}><span>Chủ tài khoản</span><input value={settings.qrBankAccountName ?? ""} onChange={(e) => setSettings({ ...settings, qrBankAccountName: e.target.value })} /></label>
-                <label className={styles.inputGroup}><span>Số tài khoản</span><input value={settings.qrBankAccountNumber ?? ""} onChange={(e) => setSettings({ ...settings, qrBankAccountNumber: e.target.value })} /></label>
+              <div className={styles.panelHead}><h3>Thiết lập bảo mật</h3><span>Bảo mật</span></div>
+
+              <div className={styles.securityWrapper}>
+                <div className={styles.securityItem}>
+                  <div className={styles.itemHead}>
+                    <div>
+                      <h4>Đổi mật khẩu</h4>
+                      <p>Thay đổi mật khẩu đăng nhập để bảo vệ tài khoản của bạn.</p>
+                    </div>
+                    {!isVerifyingPassword && (
+                      <button
+                        type="button"
+                        className={styles.ghost}
+                        onClick={() => {
+                          setPwdForm({ currentPassword: "", newPassword: "", confirmPassword: "", otp: "" });
+                          setIsVerifyingPassword(false);
+                        }}
+                      >
+                        Thiết lập
+                      </button>
+                    )}
+                  </div>
+
+                  <div className={styles.securityForm}>
+                    {!isVerifyingPassword ? (
+                      <div className={styles.pwdInputs}>
+                        <div className={styles.inputGroup}>
+                          <span>Mật khẩu hiện tại</span>
+                          <input
+                            type="password"
+                            placeholder="••••••••"
+                            value={pwdForm.currentPassword}
+                            onChange={(e) => setPwdForm({ ...pwdForm, currentPassword: e.target.value })}
+                          />
+                        </div>
+                        <div className={styles.row2}>
+                          <div className={styles.inputGroup}>
+                            <span>Mật khẩu mới</span>
+                            <input
+                              type="password"
+                              placeholder="Tối thiểu 6 ký tự"
+                              value={pwdForm.newPassword}
+                              onChange={(e) => setPwdForm({ ...pwdForm, newPassword: e.target.value })}
+                            />
+                          </div>
+                          <div className={styles.inputGroup}>
+                            <span>Nhập lại mật khẩu mới</span>
+                            <input
+                              type="password"
+                              placeholder="Xác nhận mật khẩu"
+                              value={pwdForm.confirmPassword}
+                              onChange={(e) => setPwdForm({ ...pwdForm, confirmPassword: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          className={styles.primary}
+                          style={{ marginTop: '20px' }}
+                          onClick={handleRequestPasswordChange}
+                        >
+                          Xác nhận thay đổi (Nhận OTP)
+                        </button>
+                      </div>
+                    ) : (
+                      <div className={styles.otpSection}>
+                        <div className={styles.otpHeader}>
+                          <strong>XÁC THỰC THAY ĐỔI</strong>
+                          <p>Mã OTP đã được gửi đến email của bạn. Vui lòng nhập mã để hoàn tất.</p>
+                        </div>
+                        <input
+                          className={styles.otpInput}
+                          placeholder="Mã OTP 6 số"
+                          maxLength={6}
+                          value={pwdForm.otp}
+                          onChange={(e) => setPwdForm({ ...pwdForm, otp: e.target.value })}
+                        />
+                        <div className={styles.row2} style={{ marginTop: '20px' }}>
+                          <button type="button" className={styles.ghost} onClick={() => setIsVerifyingPassword(false)}>Quay lại</button>
+                          <button type="button" className={styles.primary} onClick={handleVerifyPasswordChange}>Xác nhận đổi mật khẩu</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.securityItem} style={{ opacity: 0.5, pointerEvents: 'none' }}>
+                  <div className={styles.itemHead}>
+                    <div>
+                      <h4>Xác thực 2 lớp (2FA)</h4>
+                      <p>Sử dụng ứng dụng xác thực để thêm lớp bảo mật (Sắp ra mắt).</p>
+                    </div>
+                    <button type="button" className={styles.ghost} disabled>Kích hoạt</button>
+                  </div>
+                </div>
               </div>
             </article>
           )}
 
-          {activeTab !== "subscription" && (
+          {activeTab !== "subscription" && activeTab !== "security" && (
             <div className={styles.footer}><button type="button" className={styles.ghost} onClick={load}>Hủy</button><button type="submit" className={styles.primary}>Lưu cấu hình</button></div>
           )}
         </div>
