@@ -108,16 +108,22 @@ export async function apiFetch<T>(
     if (isJson) {
       try {
         const errorData = JSON.parse(text);
-        message = errorData.message || message;
+        if (Array.isArray(errorData.message)) {
+          message = errorData.message.join(", ");
+        } else {
+          message = errorData.message || message;
+        }
       } catch (e) { }
     } else {
       message = text || message;
     }
 
     // Remove "Error: " prefix if it exists
-    message = message.replace(/^Error:\s*/i, "");
+    if (typeof message === "string") {
+      message = message.replace(/^Error:\s*/i, "");
+    }
 
-    throw new ApiError(response.status, message);
+    throw new ApiError(response.status, String(message));
   }
 
   if (response.status === 204) {
