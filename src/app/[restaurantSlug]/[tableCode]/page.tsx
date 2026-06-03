@@ -163,17 +163,37 @@ export default function PublicMenuPage() {
         <aside className={styles.sidebar}>
           <div className={styles.panel}>
             <h2>Chi tiết đơn hàng</h2>
-            <p>Tổng cộng</p>
-            <strong>{total.toLocaleString("vi-VN")} VND</strong>
-            <textarea
-              placeholder="Ghi chú cho bếp"
-              value={customerNote}
-              onChange={(event) => setCustomerNote(event.target.value)}
-            />
-            <button onClick={placeOrder} disabled={total === 0}>
-              Đặt món ngay
-            </button>
-            {message ? <small className={styles.orderMessage}>{message}</small> : null}
+
+            {message ? (
+              <div className={styles.orderMessage}>
+                <div className={styles.successBadge}>ĐẶT MÓN THÀNH CÔNG</div>
+                <p className={styles.successText}>{message}</p>
+                <button
+                  className={styles.secondaryButton}
+                  onClick={() => setMessage("")}
+                >
+                  Đặt thêm món khác
+                </button>
+              </div>
+            ) : (
+              <>
+                <p>Tổng cộng</p>
+                <strong>{total.toLocaleString("vi-VN")} VND</strong>
+                <textarea
+                  placeholder="Ghi chú cho bếp (ví dụ: Không ăn hành, cho nhiều ớt...)"
+                  value={customerNote}
+                  onChange={(event) => setCustomerNote(event.target.value)}
+                />
+                <button
+                  className={styles.orderButton}
+                  onClick={placeOrder}
+                  disabled={total === 0}
+                >
+                  XÁC NHẬN ĐẶT MÓN
+                </button>
+                <p className={styles.hintText}>Đơn hàng sẽ được gửi trực tiếp đến bếp</p>
+              </>
+            )}
           </div>
         </aside>
       </section>

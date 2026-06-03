@@ -1,138 +1,273 @@
 .page {
-  min-height: 100vh;
-  padding: 20px 16px 40px;
-}
-
-.hero,
-.panel,
-.item {
-  border-radius: 24px;
-  border: 1px solid var(--border);
-  background: rgba(255, 250, 242, 0.9);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
 }
 
 .hero {
-  width: min(1180px, 100%);
-  margin: 0 auto 16px;
-  padding: 24px;
+  margin-bottom: 40px;
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  box-shadow: var(--shadow-lg);
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: var(--accent);
+  opacity: 0.1;
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
 }
 
 .eyebrow {
-  margin: 0 0 10px;
-  color: var(--accent);
   text-transform: uppercase;
+  font-weight: 900;
   letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 8px;
   font-size: 0.8rem;
-  font-weight: 700;
 }
 
 .hero h1 {
-  margin: 0;
-  font-size: clamp(2rem, 8vw, 4rem);
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  line-height: 1;
 }
 
-.hero p {
-  color: var(--muted);
+.hero p:not(.eyebrow) {
+  color: var(--text-muted);
+  font-size: 1rem;
 }
 
 .layout {
-  width: min(1180px, 100%);
-  margin: 0 auto;
   display: grid;
-  gap: 16px;
+  grid-template-columns: 1fr 380px;
+  gap: 40px;
+  align-items: start;
 }
 
-.menu {
-  display: grid;
-  gap: 16px;
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
 }
 
 .panel {
-  padding: 18px;
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  box-shadow: var(--shadow-md);
+  padding: 32px;
+}
+
+.panel h2 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .items {
-  display: grid;
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .item {
-  padding: 14px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  background: rgba(245, 234, 221, 0.76);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid var(--border-light);
+  transition: all 0.2s ease;
 }
 
-.item p,
-.panel p,
-.panel small {
-  color: var(--muted);
+.item:hover {
+  border-color: var(--border);
+  background: var(--surface-hover);
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0px 0px var(--border);
+}
+
+.item strong {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.item p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.item span {
+  font-weight: 700;
+  color: var(--accent);
 }
 
 .counter {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-.counter button,
-.panel button {
-  border: 0;
-  border-radius: 999px;
-  background: var(--accent);
-  color: #fff7f1;
+  gap: 12px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  padding: 4px;
 }
 
 .counter button {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.2rem;
+}
+
+.counter button:hover {
+  background: var(--accent);
+  color: white;
+}
+
+.counter span {
+  min-width: 24px;
+  text-align: center;
+  font-weight: 900;
+  color: var(--text) !important;
+}
+
+.sidebar {
+  position: sticky;
+  top: 40px;
+}
+
+.sidebar p {
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 12px;
+}
+
+.sidebar strong {
+  display: block;
+  font-size: 2rem;
+  font-weight: 900;
+  margin-bottom: 24px;
+  color: var(--accent);
 }
 
 .sidebar textarea {
   width: 100%;
-  min-height: 110px;
-  margin: 12px 0;
-  border-radius: 16px;
-  border: 1px solid var(--border);
+  min-height: 100px;
   padding: 12px;
-  font: inherit;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  margin-bottom: 20px;
+  resize: vertical;
 }
 
-.sidebar button {
-  min-height: 48px;
-  padding: 0 18px;
+.orderButton {
+  width: 100%;
+  padding: 16px;
+  background: var(--border);
+  color: white;
+  border: none;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
-@media (min-width: 980px) {
-  .layout {
-    grid-template-columns: 1.4fr 0.8fr;
-    align-items: start;
-  }
-
-  .sidebar {
-    position: sticky;
-    top: 16px;
-  }
+.orderButton:hover:not(:disabled) {
+  background: var(--accent);
+  transform: translate(-4px, -4px);
+  box-shadow: 4px 4px 0px 0px var(--text);
 }
 
-.loading, .errorPage {
+.orderButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.orderMessage {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--surface-soft);
+  border: var(--border-width) solid var(--border);
+  padding: 24px;
+}
+
+.successBadge {
+  background: var(--success);
+  color: white;
+  padding: 4px 8px;
+  font-weight: 900;
+  font-size: 0.7rem;
+  width: fit-content;
+  border: 1px solid var(--border);
+}
+
+.successText {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  font-weight: 500;
+  color: var(--text) !important;
+}
+
+.secondaryButton {
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  padding: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.secondaryButton:hover {
+  background: var(--surface-hover);
+  transform: translate(-2px, -2px);
+  box-shadow: 2px 2px 0px 0px var(--border);
+}
+
+.hintText {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 10px;
+  text-transform: none;
+  font-weight: 400;
+}
+
+.loading,
+.errorPage {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: 40px;
   text-align: center;
-  background: #f8f9fa;
+  padding: 20px;
 }
 
 .errorPage h1 {
-  font-size: 1.5rem;
+  font-size: 2.5rem;
+  font-weight: 900;
   margin-bottom: 12px;
-  color: #dc3545;
-}
-
-.errorPage p {
-  color: #6c757d;
 }
