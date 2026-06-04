@@ -25,6 +25,7 @@ type Settings = {
   qrBankAccountName: string | null;
   qrBankAccountNumber: string | null;
   qrPaymentPrefix: string | null;
+  paymentMode: "prepaid" | "postpaid" | "both";
 };
 
 type HistoryEntry = {
@@ -409,6 +410,49 @@ export default function SettingsPage() {
               <div className={styles.row2}>
                 <label className={styles.inputGroup}><span>Chủ tài khoản</span><input value={settings.qrBankAccountName ?? ""} onChange={(e) => setSettings({ ...settings, qrBankAccountName: e.target.value })} placeholder="Tên in trên thẻ" /></label>
                 <label className={styles.inputGroup}><span>Số tài khoản</span><input value={settings.qrBankAccountNumber ?? ""} onChange={(e) => setSettings({ ...settings, qrBankAccountNumber: e.target.value })} placeholder="Dãy số tài khoản" /></label>
+              </div>
+
+              <div className={styles.paymentModeSection} style={{ marginTop: '30px', borderTop: '1px solid var(--border-light)', paddingTop: '20px' }}>
+                <h4>Phương thức thanh toán</h4>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '15px' }}>Chọn cách khách hàng thanh toán cho đơn hàng của họ.</p>
+                <div className={styles.radioGrid}>
+                  <label className={styles.radioItem}>
+                    <input
+                      type="radio"
+                      name="paymentMode"
+                      checked={settings.paymentMode === "prepaid"}
+                      onChange={() => setSettings({ ...settings, paymentMode: "prepaid" })}
+                    />
+                    <div>
+                      <strong>Thanh toán trước khi đặt món</strong>
+                      <span>Khách quét QR, chọn món và thanh toán xong đơn mới được gửi vào bếp.</span>
+                    </div>
+                  </label>
+                  <label className={styles.radioItem}>
+                    <input
+                      type="radio"
+                      name="paymentMode"
+                      checked={settings.paymentMode === "postpaid"}
+                      onChange={() => setSettings({ ...settings, paymentMode: "postpaid" })}
+                    />
+                    <div>
+                      <strong>Thanh toán sau khi dùng bữa</strong>
+                      <span>Khách gọi món thoải mái, sau đó mới bấm thanh toán và gọi nhân viên hoặc tự quét QR.</span>
+                    </div>
+                  </label>
+                  <label className={styles.radioItem}>
+                    <input
+                      type="radio"
+                      name="paymentMode"
+                      checked={settings.paymentMode === "both"}
+                      onChange={() => setSettings({ ...settings, paymentMode: "both" })}
+                    />
+                    <div>
+                      <strong>Cho phép cả hai</strong>
+                      <span>Cung cấp cả hai lựa chọn thanh toán linh hoạt cho khách hàng.</span>
+                    </div>
+                  </label>
+                </div>
               </div>
             </article>
           )}

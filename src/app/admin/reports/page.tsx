@@ -15,7 +15,7 @@ export default function ReportsPage() {
   const { setTitle, setDescription } = useAdmin();
   const toast = useToast();
   const [data, setData] = useState<ReportsData | null>(null);
-  const [range, setRange] = useState<RangeKey>("7d");
+  //  const [range, setRange] = useState<RangeKey>("7d");
 
   useEffect(() => {
     setTitle("BÁO CÁO & THỐNG KÊ");
@@ -80,7 +80,7 @@ export default function ReportsPage() {
                   className={index === dailyBars.length - 1 ? styles.barAccent : styles.bar}
                   style={{ height: `${Math.min(200, (bar.total / 100000) * 10)}px` }}
                 />
-                <span style={{ fontSize: '10px' }}>{new Date(bar.date).toLocaleDateString("vi-VN", { day: '2-digit', month: '2-digit' })}</span>
+                <span style={{ fontSize: '10px' }}>{new Date(bar.date.replace(/-/g, "/")).toLocaleDateString("vi-VN", { day: '2-digit', month: '2-digit' })}</span>
               </div>
             ))}
             {dailyBars.length === 0 && <p style={{ margin: 'auto', color: '#666' }}>Chưa có dữ liệu giao dịch</p>}

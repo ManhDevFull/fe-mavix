@@ -271,3 +271,203 @@
   font-weight: 900;
   margin-bottom: 12px;
 }
+
+.billItems {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.billItem {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--border-light);
+}
+
+.billTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: var(--border-width) solid var(--border);
+}
+
+.payOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.qrSection {
+  text-align: center;
+  padding: 16px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+}
+
+.miniQr {
+  width: 160px;
+  height: 160px;
+  margin: 10px 0;
+  border: 1px solid var(--border);
+}
+
+.divider {
+  text-align: center;
+  position: relative;
+  font-weight: 900;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background: var(--border-light);
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
+
+.panelHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.panelHead h2 {
+  margin: 0 !important;
+  border-bottom: none !important;
+}
+
+/* Payment Modal (Prepaid Demo) */
+.payModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.payCard {
+  background: white;
+  border: var(--border-width) solid var(--border);
+  box-shadow: 12px 12px 0px 0px var(--border);
+  padding: 40px;
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+}
+
+.qrContainer {
+  width: 260px;
+  height: 260px;
+  margin: 0 auto 24px;
+  border: 1px solid var(--border-light);
+  padding: 10px;
+}
+
+.skeleton {
+  height: 4px;
+  background: var(--border-light);
+  margin-top: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 40%;
+  background: var(--accent);
+  animation: loading 1.5s infinite ease-in-out;
+}
+
+@keyframes loading {
+  0% {
+    left: -40%;
+  }
+
+  100% {
+    left: 100%;
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+  .page {
+    padding: 16px;
+  }
+
+  .hero {
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .panel {
+    padding: 20px;
+  }
+
+  .item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .item>div:first-child {
+    width: 100%;
+  }
+
+  .counter {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .counter button {
+    flex: 1;
+  }
+
+  .counter span {
+    flex: 2;
+  }
+
+  .sidebar {
+    position: static;
+    margin-top: 24px;
+  }
+
+  .payCard {
+    padding: 24px;
+  }
+
+  .qrContainer {
+    width: 200px;
+    height: 200px;
+  }
+}
