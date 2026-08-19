@@ -64,10 +64,16 @@ export function PublicLayout({ children, noFooter = false }: PublicLayoutProps) 
                                 <p className={s.footerDesc}>
                                     Nền tảng quản lý nhà hàng thông minh, giúp bạn vận hành chuyên nghiệp từ ngày đầu tiên.
                                 </p>
+                                <div className={s.footerLegal}>
+                                    <strong>CÔNG TY TNHH MAVIX</strong><br />
+                                    MST: xxxxxxxxxx do Sở KH&ĐT cấp ngày dd/mm/yyyy<br />
+                                    Địa chỉ: Số xx Hùng Vương, Q. Hải Châu, TP. Đà Nẵng<br />
+                                    Đại diện: Nguyễn Thành Mạnh - Giám đốc
+                                </div>
                                 <div className={s.footerContactInfo}>
-                                    <a href="mailto:mavix@mavix.com" className={s.footerContactRow}>mavix@mavix.com</a>
-                                    <a href="mailto:ntmanh@ntmanh.io.vn" className={s.footerContactRow}>ntmanh@ntmanh.io.vn</a>
-                                    <a href="tel:0799021393" className={s.footerContactRow}>0799 021 393</a>
+                                    <a href="mailto:contact@mavix.com" className={s.footerContactRow}>Business: contact@mavix.com</a>
+                                    <a href="mailto:support@mavix.com" className={s.footerContactRow}>Support: support@mavix.com</a>
+                                    <a href="tel:0799021393" className={s.footerContactRow}>Hotline: 0799 021 393</a>
                                 </div>
                             </div>
                             {[
@@ -108,10 +114,10 @@ export function PublicLayout({ children, noFooter = false }: PublicLayoutProps) 
                             ))}
                         </div>
                         <div className={s.footerBottom}>
-                            <p className={s.footerCopy}>@Copyright by MADZ Coder & Mavix</p>
+                            <p className={s.footerCopy}>© 2026 CÔNG TY TNHH MAVIX. All rights reserved.</p>
                             <div className={s.footerSocials}>
                                 <a className={s.footerSocial} href="https://www.facebook.com/thanh.manh2005" target="_blank" rel="noopener noreferrer">Facebook</a>
-                                <a className={s.footerSocial} href="mailto:ntmanh@ntmanh.io.vn">Email</a>
+                                <a className={s.footerSocial} href="mailto:support@mavix.com">Email</a>
                                 <a className={s.footerSocial} href="tel:0799021393">Gọi ngay</a>
                             </div>
                         </div>

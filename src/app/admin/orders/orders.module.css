@@ -52,6 +52,22 @@
   flex-direction: column;
 }
 
+.highlightCard {
+  animation: cardBlink 1s infinite alternate;
+}
+
+@keyframes cardBlink {
+  from {
+    border-color: var(--border);
+    box-shadow: 6px 6px 0px 0px var(--border);
+  }
+
+  to {
+    border-color: #ffcc00;
+    box-shadow: 6px 6px 0px 0px #ffcc00;
+  }
+}
+
 .header {
   display: flex;
   align-items: flex-start;
@@ -192,6 +208,29 @@
 .totalRow strong {
   font-size: 1.1rem;
   font-weight: 900;
+}
+
+.sessionActions {
+  padding: 10px 18px;
+  border-top: 1px solid var(--border-light);
+  background: white;
+}
+
+.finishBtn {
+  width: 100%;
+  padding: 10px;
+  background: #f1f1f1;
+  color: #666;
+  border: 1px solid #ccc;
+  font-weight: 800;
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.finishBtn:hover {
+  background: #e0e0e0;
+  color: #333;
 }
 
 @media (max-width: 1300px) {

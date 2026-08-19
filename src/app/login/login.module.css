@@ -9,22 +9,24 @@
 }
 
 .shell {
-  width: min(1100px, 100%);
+  width: min(1180px, 100%);
   margin: 0 auto;
   display: grid;
   grid-template-columns: 50% 50%;
   border: var(--border-width) solid var(--border);
   background: white;
   box-shadow: 12px 12px 0 0 rgba(0, 0, 0, 0.05);
+  height: 720px;
+  box-sizing: border-box;
 }
 
 .brandPane {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: calc(100vh - 80px);
-  max-height: 680px;
+  height: 100%;
   border-right: var(--border-width) solid var(--border);
+  box-sizing: border-box;
   background:
     linear-gradient(rgba(215, 219, 228, 0.6) 1px, transparent 1px),
     linear-gradient(90deg, rgba(215, 219, 228, 0.6) 1px, transparent 1px),
@@ -88,12 +90,14 @@
 }
 
 .formPane {
-  padding: 30px 50px 40px;
+  padding: 30px 50px 32px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   overflow-y: auto;
-  max-height: calc(100vh - 80px);
+  height: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
 }
 
 .eyebrow {
@@ -181,6 +185,39 @@
   font-weight: 900;
   text-transform: uppercase;
   box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.card button:disabled {
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Exclusive Login Styles for spacing/layout */
+.loginCard {
+  gap: 20px;
+}
+
+.loginCard label {
+  gap: 10px;
+}
+
+.loginCard input {
+  min-height: 48px;
+}
+
+.loginCard button {
+  min-height: 48px;
+}
+
+.loginCard hr {
+  margin: 22px 0;
+}
+
+.loginSubcopy {
+  margin: 14px 0 24px;
 }
 
 .error {
@@ -188,18 +225,152 @@
   font-weight: 800;
 }
 
+/* ── Tablet ── */
 @media (max-width: 980px) {
+  .page {
+    height: auto;
+    min-height: calc(100vh - 64px);
+    overflow: visible;
+    padding: 20px 16px;
+  }
+
   .shell {
     grid-template-columns: 1fr;
+    box-shadow: 6px 6px 0 0 rgba(0, 0, 0, 0.05);
+    height: auto;
   }
 
   .brandPane {
-    min-height: auto;
+    height: auto;
+    max-height: none;
     border-right: 0;
     border-bottom: var(--border-width) solid var(--border);
   }
 
+  .brandTop {
+    padding: 32px 28px;
+  }
+
+  .brandTop h1 {
+    font-size: 2rem;
+  }
+
+  .brandTop p {
+    font-size: 0.9rem;
+    margin-top: 14px;
+  }
+
+  .brandBottom {
+    padding: 20px 28px;
+  }
+
+  .formPane {
+    padding: 24px 28px 32px;
+    height: auto;
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .formPane h1 {
+    font-size: 1.8rem;
+  }
+
+  .subcopy {
+    font-size: 0.88rem;
+    margin: 10px 0 16px;
+  }
+
   .helper {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .page {
+    padding: 12px 10px;
+    align-items: flex-start;
+  }
+
+  .shell {
+    box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.04);
+  }
+
+  .brandPane {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .brandTop {
+    padding: 18px 20px;
+    flex: 1;
+  }
+
+  .brandMark {
+    width: 40px;
+    height: 40px;
+    font-size: 0.9rem;
+    margin-bottom: 0;
+  }
+
+  .brandTop h1 {
+    font-size: 1.3rem;
+    margin: 0;
+  }
+
+  .brandTop p {
+    display: none;
+  }
+
+  .brandBottom {
+    display: none;
+  }
+
+  .formPane {
+    padding: 20px 18px 28px;
+  }
+
+  .eyebrow {
+    font-size: 0.75rem;
+    margin-bottom: 8px;
+  }
+
+  .formPane h1 {
+    font-size: 1.4rem;
+  }
+
+  .subcopy {
+    font-size: 0.82rem;
+    margin: 8px 0 14px;
+  }
+
+  .card {
+    gap: 10px;
+  }
+
+  .card label {
+    font-size: 0.75rem;
+    gap: 6px;
+  }
+
+  .card input {
+    min-height: 40px;
+    font-size: 0.92rem;
+    padding: 0 12px;
+  }
+
+  .card button {
+    min-height: 40px;
+    font-size: 0.8rem;
+  }
+
+  .signup {
+    font-size: 0.8rem;
+  }
+
+  .divider {
+    margin: 10px 0;
   }
 }

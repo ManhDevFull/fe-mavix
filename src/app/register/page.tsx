@@ -4,6 +4,7 @@ import { FormEvent, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Loader2, ArrowRight, ArrowLeft, Building2, User, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 import { PublicLayout } from "../../components/public-layout";
 import { useToast } from "../../components/toast-provider";
 import { apiFetch } from "../../lib/api";
@@ -21,6 +22,7 @@ export default function RegisterPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [resendCooldown, setResendCooldown] = useState(0);
+    const [agreedTerms, setAgreedTerms] = useState(false);
 
     // Form Data
     const [formData, setFormData] = useState({
@@ -109,6 +111,7 @@ export default function RegisterPage() {
             if (step === 1) {
                 if (!formData.email.includes("@")) throw new Error("Email không hợp lệ");
                 if (formData.password.length < 8) throw new Error("Mật khẩu phải tối thiểu 8 ký tự");
+                if (!agreedTerms) throw new Error("Bạn phải đồng ý với Điều khoản dịch vụ và Chính sách bảo mật");
                 setStep(2);
             } else if (step === 2) {
                 const result = await apiFetch<{
@@ -244,8 +247,7 @@ export default function RegisterPage() {
                                         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                                         onSubmit={(e) => { e.preventDefault(); processNextStep(); }}
                                     >
-                                        <p className={loginStyles.eyebrow}>Đăng ký ngay</p>
-                                        <h1 className={loginStyles.formPane} style={{ padding: 0, marginBottom: 12 }}>Tạo tài khoản mới</h1>
+                                        <h1>Tạo tài khoản mới</h1>
                                         <p className={loginStyles.subcopy}>Thông tin đăng nhập chìa khóa để quản trị toàn bộ hệ thống MK.</p>
 
                                         <div className={loginStyles.card}>
@@ -263,7 +265,22 @@ export default function RegisterPage() {
                                                 {formData.password && formData.password.length < 8 && <p style={{ color: "var(--danger)", fontSize: "0.7rem", margin: 0, fontWeight: 800 }}>Mật khẩu quá ngắn</p>}
                                             </label>
 
-                                            <button type="submit" disabled={loading} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
+                                            <label className={styles.termsWrapper}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={agreedTerms}
+                                                    onChange={(e) => setAgreedTerms(e.target.checked)}
+                                                />
+                                                <span className={styles.termsText}>
+                                                    Tôi đồng ý với{" "}
+                                                    <Link href="/support/terms" target="_blank">Điều khoản dịch vụ</Link>
+                                                    {" "}và{" "}
+                                                    <Link href="/support/privacy" target="_blank">Chính sách bảo mật</Link>
+                                                    {" "}của MAVIX
+                                                </span>
+                                            </label>
+
+                                            <button type="submit" disabled={loading || !agreedTerms} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, opacity: agreedTerms ? 1 : 0.5 }}>
                                                 {loading ? <Loader2 className="animate-spin" size={20} /> : <>Tiếp tục <ArrowRight size={18} /></>}
                                             </button>
                                             <hr className={loginStyles.divider} />
@@ -282,8 +299,7 @@ export default function RegisterPage() {
                                         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                                         onSubmit={(e) => { e.preventDefault(); processNextStep(); }}
                                     >
-                                        <p className={loginStyles.eyebrow}>Thiết lập</p>
-                                        <h1 className={loginStyles.formPane} style={{ padding: 0, marginBottom: 12 }}>Thông tin vận hành</h1>
+                                        <h1>Thông tin vận hành</h1>
                                         <p className={loginStyles.subcopy}>Địa chỉ và loại hình kinh doanh giúp tối ưu hóa dashboard.</p>
 
                                         <div className={loginStyles.card}>
@@ -328,8 +344,7 @@ export default function RegisterPage() {
                                         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                                         onSubmit={(e) => { e.preventDefault(); processNextStep(); }}
                                     >
-                                        <p className={loginStyles.eyebrow}>Xác thực</p>
-                                        <h1 className={loginStyles.formPane} style={{ padding: 0, marginBottom: 12 }}>Xác minh Email</h1>
+                                        <h1>Xác minh Email</h1>
                                         <p className={loginStyles.subcopy}>Nhập mã 6 số được gửi tới <strong>{formData.email}</strong>.</p>
 
                                         <div className={loginStyles.card}>

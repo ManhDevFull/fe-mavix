@@ -70,29 +70,23 @@ export default function ContactPage() {
               <h3 className={styles.infoTitle}>Thông tin liên hệ</h3>
               <div className={styles.infoList}>
                 <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Facebook</span>
-                  <a className={styles.infoVal} href="https://www.facebook.com/thanh.manh2005" target="_blank" rel="noopener noreferrer">
-                    facebook.com/thanh.manh2005
-                  </a>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Email Hỗ trợ</span>
-                  <a className={styles.infoVal} href="mailto:mavix@mavix.com">
-                    mavix@mavix.com
-                  </a>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Email Kỹ thuật</span>
-                  <a className={styles.infoVal} href="mailto:ntmanh@ntmanh.io.vn">
-                    ntmanh@ntmanh.io.vn
-                  </a>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>SĐT / Zalo</span>
+                  <span className={styles.infoLabel}>Hotline / Zalo</span>
                   <a className={styles.infoVal} href="tel:0799021393">0799 021 393</a>
                 </div>
                 <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Giờ làm việc</span>
+                  <span className={styles.infoLabel}>Hợp tác</span>
+                  <a className={styles.infoVal} href="mailto:contact@mavix.com">
+                    contact@mavix.com
+                  </a>
+                </div>
+                <div className={styles.infoItem}>
+                  <span className={styles.infoLabel}>Hỗ trợ kỹ thuật</span>
+                  <a className={styles.infoVal} href="mailto:support@mavix.com">
+                    support@mavix.com
+                  </a>
+                </div>
+                <div className={styles.infoItem}>
+                  <span className={styles.infoLabel}>Giờ hỗ trợ</span>
                   <span className={styles.infoVal}>8:00 – 22:00 hàng ngày</span>
                 </div>
               </div>

@@ -56,6 +56,7 @@ export default function PublicMenuPage() {
   const [checkoutStep, setCheckoutStep] = useState<"idle" | "paying" | "success">("idle");
   const [message, setMessage] = useState("");
   const [billRequested, setBillRequested] = useState(false);
+  const [sessionConfirmed, setSessionConfirmed] = useState(false);
 
   const loadMenu = async () => {
     try {
@@ -140,6 +141,58 @@ export default function PublicMenuPage() {
 
   if (!data) return <div className={styles.loading}>Đang tải...</div>;
 
+  if (data.table.status === "occupied" && !sessionConfirmed) {
+    return (
+      <main className={styles.page}>
+        <header className={styles.hero}>
+          <p className={styles.eyebrow}>{data.restaurant.name}</p>
+          <h1>{data.table.displayName}</h1>
+        </header>
+
+        <section style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '40px 20px',
+          minHeight: '40vh'
+        }}>
+          <article className={styles.panel} style={{
+            maxWidth: '460px',
+            width: '100%',
+            textAlign: 'center',
+            padding: '40px 30px',
+            margin: '0 auto'
+          }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '15px', fontWeight: 900 }}>BÀN ĐANG SỬ DỤNG</h2>
+            <p style={{ margin: '15px 0 30px', color: '#666', lineHeight: '1.6', fontSize: '0.95rem' }}>
+              Chào mừng bạn đến với <b>{data.restaurant.name}</b>!<br />
+              Bàn này hiện đang có một phiên hoạt động. Vui lòng xác nhận trạng thái của bạn:
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <button
+                className={styles.orderButton}
+                onClick={() => setSessionConfirmed(true)}
+              >
+                TÔI DÙNG TIẾP BÀN NÀY
+              </button>
+              <button
+                className={styles.secondaryButton}
+                style={{ width: '100%', padding: '14px', border: '2px solid var(--border)', fontWeight: 900 }}
+                onClick={async () => {
+                  await fetch(`${API_URL}/public/restaurants/${restaurantSlug}/tables/${tableCode}/reset-table`, { method: "POST" });
+                  setSessionConfirmed(true);
+                  loadMenu();
+                }}
+              >
+                TÔI LÀ KHÁCH MỚI
+              </button>
+            </div>
+          </article>
+        </section>
+      </main>
+    );
+  }
+
   if (checkoutStep === "paying") {
     return (
       <div className={styles.payModal}>
@@ -194,21 +247,26 @@ export default function PublicMenuPage() {
 
           <aside className={styles.sidebar}>
             <div className={styles.panel}>
-              <h2>Thanh toán</h2>
+              <h2>{bill.restaurant.paymentMode === 'prepaid' ? 'Biên lai' : 'Thanh toán'}</h2>
               <div className={styles.payOptions}>
-                <div className={styles.qrSection}>
-                  <p>Tự thanh toán qua QR</p>
-                  <img
-                    src={`https://img.vietqr.io/image/${bill.restaurant.qrBankName?.split(' ')[0]}-${bill.restaurant.qrBankAccountNumber}-compact.png?amount=${bill.total}&addInfo=${bill.transferContent}`}
-                    alt="QR"
-                    className={styles.miniQr}
-                  />
-                  <small>Nội dung: {bill.transferContent}</small>
-                </div>
-                <div className={styles.divider}>HOẶC</div>
+                {bill.restaurant.paymentMode !== 'prepaid' && (
+                  <>
+                    <div className={styles.qrSection}>
+                      <p>Tự thanh toán qua QR</p>
+                      <img
+                        src={`https://img.vietqr.io/image/${bill.restaurant.qrBankName?.split(' ')[0]}-${bill.restaurant.qrBankAccountNumber}-compact.png?amount=${bill.total}&addInfo=${bill.transferContent}`}
+                        alt="QR"
+                        className={styles.miniQr}
+                      />
+                      <small>Nội dung: {bill.transferContent}</small>
+                    </div>
+                    <div className={styles.divider}>HOẶC</div>
+                  </>
+                )}
+
                 {billRequested ? (
                   <div className={styles.successBadge} style={{ width: '100%', textAlign: 'center', padding: '12px', marginBottom: '10px' }}>
-                    ĐÃ GỬI YÊU CẦU IN BILL
+                    ĐÃ GỬI YÊU CẦU
                   </div>
                 ) : (
                   <button className={styles.orderButton} onClick={async () => {
@@ -219,10 +277,16 @@ export default function PublicMenuPage() {
                       alert("Không thể gửi yêu cầu, vui lòng báo nhân viên trực tiếp.");
                     }
                   }}>
-                    GỌI NHÂN VIÊN IN BILL
+                    {bill.restaurant.paymentMode === 'prepaid' ? 'YÊU CẦU IN HÓA ĐƠN' : 'GỌI NHÂN VIÊN IN BILL'}
                   </button>
                 )}
-                <p className={styles.hintText}>Bạn có thể thanh toán tiền mặt sau khi nhận bill</p>
+
+                {bill.restaurant.paymentMode !== 'prepaid' && (
+                  <p className={styles.hintText}>Bạn có thể thanh toán tiền mặt sau khi nhận bill</p>
+                )}
+                {bill.restaurant.paymentMode === 'prepaid' && (
+                  <p className={styles.hintText} style={{ color: '#1dbb87' }}>✅ Đơn hàng của bạn đã được thanh toán.</p>
+                )}
               </div>
             </div>
           </aside>
@@ -234,12 +298,18 @@ export default function PublicMenuPage() {
   return (
     <main className={styles.page}>
       <header className={styles.hero}>
-        <p className={styles.eyebrow}>{data.restaurant.name}</p>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h1>{data.table.displayName}</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <p className={styles.eyebrow}>{data.restaurant.name}</p>
+            <h1>{data.table.displayName}</h1>
+          </div>
           {data.table.status === 'occupied' && (
-            <button className={styles.secondaryButton} onClick={() => { loadBill(); setView("bill"); }}>
-              Xem hóa đơn bàn
+            <button
+              className={styles.orderButton}
+              style={{ width: 'auto', padding: '10px 20px', fontSize: '0.8rem' }}
+              onClick={() => { loadBill(); setView("bill"); }}
+            >
+              HÓA ĐƠN / GỌI BILL
             </button>
           )}
         </div>

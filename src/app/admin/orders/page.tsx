@@ -13,10 +13,12 @@ type OrderBoard = Array<{
   total: number;
   orderStatus: string;
   paymentStatus: string;
+  paymentMode: string;
   customerNote: string | null;
+  billRequested: boolean;
   items: Array<{
     id: number;
-    item_name: string; // Fixed: using item_name from DB
+    item_name: string;
     quantity: number;
     status: string;
     unitPrice: number;
@@ -58,6 +60,8 @@ export default function OrdersPage() {
           next.add(data.tableCode);
           return next;
         });
+        // Reload board so the order with bill_requested=true appears immediately
+        void loadOrders(true);
       };
 
       socket.on("new_order", handleUpdate);
@@ -101,7 +105,40 @@ export default function OrdersPage() {
     }
   }
 
-  function printBill(order: OrderBoard[0]) {
+  async function finishSession(orderId: number, tableCode: string) {
+    if (!confirm(`Xác nhận khách tại bàn ${tableCode} đã rời đi và giải phóng bàn?`)) return;
+    try {
+      await apiFetch(`/admin/orders/${orderId}/finish`, { method: "POST" });
+      toast.success("Thành công", `Bàn ${tableCode} hiện đã trống.`);
+      // Clear bill request if any
+      setBillRequests(prev => {
+        const next = new Set(prev);
+        next.delete(tableCode);
+        return next;
+      });
+      await loadOrders();
+    } catch (error) {
+      toast.error("Lỗi", "Không thể giải phóng bàn");
+    }
+  }
+
+  async function printBill(order: OrderBoard[0]) {
+    // 1. Clear the bill request highlight in DB
+    if (order.billRequested) {
+      try {
+        await apiFetch(`/admin/orders/${order.orderId}/clear-bill-request`, { method: "POST" });
+        // Update local state to stop blinking immediately
+        setBillRequests(prev => {
+          const next = new Set(prev);
+          next.delete(order.tableCode);
+          return next;
+        });
+        void loadOrders(true);
+      } catch (error) {
+        console.error("Failed to clear bill request status", error);
+      }
+    }
+
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
@@ -144,10 +181,8 @@ export default function OrdersPage() {
   }
 
   const activeOrders = orders.filter((order) => {
-    // Show if unpaid
-    if (order.paymentStatus !== "paid") return true;
-    // OR if paid but has items not yet served
-    return order.items.some(item => item.status !== "served");
+    // Show if has unserved items OR if guest requested bill (pulled back from history)
+    return order.billRequested || order.items.some(item => item.status !== "served");
   });
 
   return (
@@ -158,12 +193,12 @@ export default function OrdersPage() {
           <strong>{activeOrders.length}</strong>
         </div>
         <div>
-          <span>Đã phục vụ</span>
-          <strong>{activeOrders.filter((order) => order.orderStatus === "served").length}</strong>
+          <span>Đang chờ lên món</span>
+          <strong>{activeOrders.filter(o => o.items.some(i => i.status !== "served")).length}</strong>
         </div>
         <div>
-          <span>Đang chờ</span>
-          <strong>{activeOrders.filter((order) => order.orderStatus !== "served").length}</strong>
+          <span>Gọi in bill</span>
+          <strong>{activeOrders.filter(o => o.billRequested).length}</strong>
         </div>
       </section>
 
@@ -187,7 +222,7 @@ export default function OrdersPage() {
         {!loading &&
           !error &&
           activeOrders.map((order) => (
-            <article key={order.orderId} className={styles.card}>
+            <article key={order.orderId} className={`${styles.card} ${order.billRequested ? styles.highlightCard : ""}`}>
               <div className={styles.header}>
                 <div>
                   <p>Bàn {order.tableCode}</p>
@@ -200,11 +235,12 @@ export default function OrdersPage() {
                   >
                     IN BILL
                   </button>
-                  {order.paymentStatus === "pending" && (
+                  {/* Chỉ hiện nút thu tiền khi mode trả sau (tiền mặt) và chưa thanh toán */}
+                  {order.paymentStatus === "pending" && order.paymentMode !== "prepaid" && (
                     <button
                       className={styles.payIconBtn}
                       onClick={() => markPaid(order.orderId, order.tableCode)}
-                      title="Đánh dấu đã thanh toán"
+                      title="Xác nhận đã thu tiền mặt"
                     >
                       ✓
                     </button>

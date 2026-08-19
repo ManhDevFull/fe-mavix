@@ -142,3 +142,19 @@
     text-transform: uppercase;
     letter-spacing: 0.06em;
 }
+
+.legalSection {
+    margin-top: 80px;
+    padding: 32px;
+    background: #fff;
+    border: 2px solid #0a0a0a;
+    box-shadow: 8px 8px 0 0 #0a0a0a;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #555;
+    text-align: center;
+}
+
+.legalSection strong {
+    color: #0a0a0a;
+}

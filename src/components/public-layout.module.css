@@ -238,8 +238,16 @@
     max-width: 28ch;
 }
 
+.footerLegal {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.35);
+    line-height: 1.5;
+    margin-top: 12px;
+    font-family: inherit;
+}
+
 .footerContactInfo {
-    margin-top: 16px;
+    margin-top: 12px;
     display: flex;
     flex-direction: column;
     gap: 6px;

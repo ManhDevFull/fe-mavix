@@ -81,11 +81,11 @@ export default function LoginPage() {
           <div className={styles.formPane}>
             <p className={styles.eyebrow}>Đăng nhập quản trị</p>
             <h1>Đăng nhập hệ thống</h1>
-            <p className={styles.subcopy}>
+            <p className={`${styles.subcopy} ${styles.loginSubcopy}`}>
               Truy cập dashboard để quản lý bàn, thực đơn, đơn hàng, thiết bị và các phiên đăng nhập.
             </p>
 
-            <form className={styles.card} onSubmit={submit}>
+            <form className={`${styles.card} ${styles.loginCard}`} onSubmit={submit}>
               <label>
                 <span>Email</span>
                 <input

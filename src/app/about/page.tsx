@@ -56,6 +56,13 @@ export default function AboutPage() {
             </div>
           ))}
         </section>
+
+        <section className={styles.legalSection}>
+          <p>
+            Nền tảng MAVIX được sở hữu và vận hành chính thức bởi <strong>CÔNG TY TNHH MAVIX</strong>.
+            Chúng tôi cam kết cung cấp các giải pháp công nghệ tiên tiến nhất nhằm số hóa và tối ưu quy trình vận hành cho ngành F&B tại Việt Nam.
+          </p>
+        </section>
       </div>
     </PublicLayout>
   );
